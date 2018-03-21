@@ -12,7 +12,8 @@
         <StackPanel Orientation="Vertical">
             <TextBlock HorizontalAlignment="Center" Height="45" Width="120" FontSize="30" Margin="10,5,170,5"><Run Text="iTraceVS"/></TextBlock>
             <Button Content="Connect to Core" Click="attemptConnection" Height="45" Width="120" x:Name="button1" Margin="10,5,170,5"/>
-            <TextBlock Name="dataDisplay" HorizontalAlignment="Center" Height="45" Width="280" FontSize="20" Margin="10,5">Socket Results</TextBlock>
+            <CheckBox Content="Display Reticle" Checked="Reticle_Checked" Unchecked="Reticle_Unchecked" Height="20" FontSize="15" Width="125" Margin="10,5,170,5"/>
+            <CheckBox Content="Highlight Tokens" Checked="Highlight_Checked" Unchecked="Highlight_Unchecked" Height="20" FontSize="15" Width="145" Margin="10,5,150,5"/>
         </StackPanel>
     </Grid>
 </UserControl>

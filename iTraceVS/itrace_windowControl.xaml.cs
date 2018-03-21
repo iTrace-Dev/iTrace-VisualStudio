@@ -9,6 +9,7 @@
     /// </summary>
     public partial class itrace_windowControl : UserControl
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
@@ -37,6 +38,26 @@
                 socket_manager.closeSocket();
                 start = false;
             } 
+        }
+
+        private void Reticle_Checked(object sender, RoutedEventArgs e)
+        {
+            socket_manager.reticleShow(true);
+        }
+
+        private void Reticle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            socket_manager.reticleShow(false);
+        }
+
+        private void Highlight_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Highlight_Unchecked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
