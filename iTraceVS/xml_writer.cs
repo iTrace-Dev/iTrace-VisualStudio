@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace iTraceVS
@@ -30,12 +31,13 @@ namespace iTraceVS
             writer.WriteEndElement();
         }
 
-        public static void writeResponse(string data) {
+        public static void writeResponse(Int64 sessionTime, double x, double y) {
             writer.WriteStartElement("responses");
+           
+            writer.WriteAttributeString("x", Convert.ToString(x));
+            writer.WriteAttributeString("y", Convert.ToString(y));
 
-            writer.WriteAttributeString("serverData", data);
-            //writer.WriteAttributeString("y", "57");
-            //writer.WriteAttributeString("timestamp", "57");
+            writer.WriteAttributeString("session-time", Convert.ToString(sessionTime));
             //additional attributes
 
             writer.WriteEndElement();

@@ -2,16 +2,20 @@
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
 
 namespace iTraceVS
 {
     class socket_manager
     {
         private static int port = 8008;
+        static bool active = false;
+
         static TcpClient client;
         static StreamReader clientIn;
-        static bool toRead = false;
-        private static Thread worker;
+        static core_buffer buffer;
+        private static Thread readWorker;
+        private static Thread writeWorker;
         private static reticle ret;
 
         public static void getSocket() {
@@ -19,24 +23,36 @@ namespace iTraceVS
                 client = new TcpClient("localhost", port);
                 clientIn = new StreamReader(client.GetStream());
                 xml_writer.xmlStart();
-                toRead = true;
+                buffer = core_buffer.Instance;
                 ret = new reticle();
-                worker = new Thread(writeData);
-                worker.Start();
+                active = true;
+
+                readWorker = new Thread(readData);
+                readWorker.Start();
+                writeWorker = new Thread(writeData);
+                writeWorker.Start();
             }
             catch (Exception e) {
                 Console.WriteLine(e.ToString());               
             }
         }
 
-        static void writeData() {
-            while (toRead) {
+        static void readData() {
+            while (active) {
                 if (client.GetStream().DataAvailable == true) {
                     string data = clientIn.ReadLine();
-                    xml_writer.writeResponse(data);
-                    
-                    updateReticle(data);
+                    buffer.enqueue(new core_data(data));
                 }
+            }
+            return;
+        }
+
+        static void writeData() {
+            core_data data;
+            while (active) {
+                data = buffer.dequeue();
+                xml_writer.writeResponse(data.sessionTime, data.eyeX, data.eyeY);
+                ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
             }
 
             xml_writer.xmlEnd();
@@ -44,38 +60,11 @@ namespace iTraceVS
         }
 
         public static void closeSocket() {
-            toRead = false;
+            active = false;
             client = null;
             clientIn = null;
         }
-
-        static void updateReticle(string data) {
-            int i = 0;
-            string x = "";
-            string y = "";
-            while (data[i] != ',')
-                ++i;
-            ++i; //move past the ','
-
-            while (data[i] != '.' && data[i] != ',') {
-                x += data[i];
-                ++i;
-            }
-            while (data[i] != ',')
-                ++i;
-            ++i; //move past the ','
-
-            while (data[i] != '.' && i < data.Length - 1) {
-                y += data[i];
-                ++i;
-            }
-
-            if (x == "-nan(ind)" || y == "-nan(ind")
-                return;
-
-            ret.updateReticle(Convert.ToInt32(x), Convert.ToInt32(y));
-        }
-
+        
         public static void reticleShow(bool show) {
             ret.toDraw(show);
         }

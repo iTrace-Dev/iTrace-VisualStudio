@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace iTraceVS
 {
     class core_data
     {
-        double eyeX;
-        double eyeY;
-        Int64 sessionTime;
+        public double eyeX;
+        public double eyeY;
+        public Int64 sessionTime;
 
         public core_data() {
             eyeX = -1;

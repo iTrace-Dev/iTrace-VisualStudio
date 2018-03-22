@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 
 namespace iTraceVS
 {
     class core_buffer
     {
-        Queue<core_data> buffer;
-        private static Mutex mutex = new Mutex();
+        private static Queue<core_data> buffer;
+        private static Mutex mutex;
         private static core_buffer singleton;
 
-        private core_buffer() { }
+        private core_buffer() {
+            mutex = new Mutex();
+            buffer = new Queue<core_data>();
+        }
 
         public static core_buffer Instance {
             get {
@@ -23,14 +23,14 @@ namespace iTraceVS
             }
         }
 
-        core_data dequeue() {
+        public core_data dequeue() {
             core_data cd = new core_data();
 
             while (buffer.Count == 0) {
                 Thread.Sleep(10);
             }
 
-            if (mutex.WaitOne(500)) {
+            if (mutex.WaitOne(75)) {
                 cd = buffer.Dequeue();
                 mutex.ReleaseMutex();
             }
@@ -38,8 +38,8 @@ namespace iTraceVS
             return cd;
         }
 
-        void enqueue(core_data cd) {
-            if (mutex.WaitOne(500)) {
+        public void enqueue(core_data cd) {
+            if (mutex.WaitOne(75)) {
                 buffer.Enqueue(cd);
                 mutex.ReleaseMutex();
             }
