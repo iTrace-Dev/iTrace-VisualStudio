@@ -1,5 +1,4 @@
-﻿
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -16,7 +15,7 @@ namespace iTraceVS
         private List<int> xPoints = new List<int>();
         private List<int> yPoints = new List<int>();
         private bool display;
-        private Timer timer;
+        private System.Windows.Forms.Timer timer;
         private Point newPos;
 
         public reticle()
@@ -26,7 +25,7 @@ namespace iTraceVS
             totalY = 0;
             display = false;
             newPos = new Point(0, 0);
-            timer = new Timer() { Interval = 20, Enabled = true };
+            timer = new System.Windows.Forms.Timer() { Interval = 20, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
 
             TopMost = true;
@@ -41,9 +40,9 @@ namespace iTraceVS
             Paint += new PaintEventHandler(reticleFormPaint);
         }
 
+        //Use timer to update reticle posistion because Location cannot be directly set from within the worker thread
         void timerTick(object sender, EventArgs e)
         {
-            newPos.Offset(-(Width / 2), -(Height / 2));
             Location = newPos;
         }
 
@@ -70,7 +69,7 @@ namespace iTraceVS
             // Invalid screen coordinates...
             if (x < 0 || y < 0)
                 return;
-
+            
             //Sum up all the x and y we have seen
             totalX += x;
             totalY += y;
@@ -92,7 +91,9 @@ namespace iTraceVS
             {
                 double avgX = totalX / MAX_NUM_POINTS;
                 double avgY = totalY / MAX_NUM_POINTS;
+
                 newPos = new Point(Convert.ToInt32(avgX), Convert.ToInt32(avgY));
+                newPos.Offset(-(Width / 2), -(Height / 2));
 
                 //Remove oldest points from totals and lists
                 totalX -= xPoints.Last();

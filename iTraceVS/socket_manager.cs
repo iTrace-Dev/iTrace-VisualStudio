@@ -44,19 +44,18 @@ namespace iTraceVS
                     buffer.enqueue(new core_data(data));
                 }
             }
-            return;
         }
 
         static void writeData() {
             core_data data;
             while (active) {
                 data = buffer.dequeue();
-                xml_writer.writeResponse(data.sessionTime, data.eyeX, data.eyeY);
-                ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
+                if (data.sessionTime != -1) {
+                    xml_writer.writeResponse(data.sessionTime, data.eyeX, data.eyeY);
+                    ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
+                }
             }
-
             xml_writer.xmlEnd();
-            return;
         }
 
         public static void closeSocket() {
