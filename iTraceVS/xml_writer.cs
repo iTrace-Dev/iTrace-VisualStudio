@@ -3,18 +3,19 @@ using System.Windows.Forms;
 using System.Xml;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Editor;
 using System.Diagnostics;
 
 namespace iTraceVS
 {
     class xml_writer
     {
-        static XmlWriter writer;
-        static XmlWriterSettings prefs;
+        public static XmlWriter writer;
+        public static XmlWriterSettings prefs;
 
         public static void xmlStart() {
             prefs = new XmlWriterSettings() {
-                Indent = true                
+                Indent = true
             };
             writer = XmlWriter.Create("plugin_test.xml", prefs);
             writer.WriteStartDocument();

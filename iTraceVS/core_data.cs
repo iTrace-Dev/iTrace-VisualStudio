@@ -1,4 +1,5 @@
 ﻿using System;
+//using System.Xml;
 
 namespace iTraceVS
 {
@@ -16,33 +17,52 @@ namespace iTraceVS
 
         public core_data(string data) {
             int i = 0;
-            string x = "", y = "", session = "";
+            string type = "", x = "", y = "", session = "";
 
-            while (data[i] != ',') {
-                session += data[i];
+            while (data[i] != ',')
+            {
+                type += data[i];
                 ++i;
             }
-            sessionTime = Convert.ToInt64(session);
-            ++i; //move past the ','
-            
-            while (data[i] != ',') {
-                x += data[i];
-                ++i;
-            }
-            ++i; //move past the ','
+            ++i;
 
-            while (i < data.Length) {
-                y += data[i];
-                ++i;
+            if (type == "gaze") {
+                while (data[i] != ',')
+                {
+                    session += data[i];
+                    ++i;
+                }
+                sessionTime = Convert.ToInt64(session);
+                ++i; //move past the ','
+
+                while (data[i] != ',')
+                {
+                    x += data[i];
+                    ++i;
+                }
+                ++i; //move past the ','
+
+                while (i < data.Length)
+                {
+                    y += data[i];
+                    ++i;
+                }
+
+                if (x == "-nan(ind)" || y == "-nan(ind")
+                {
+                    eyeX = -1;
+                    eyeY = -1;
+                }
+                else
+                {
+                    eyeX = Convert.ToDouble(x);
+                    eyeY = Convert.ToDouble(y);
+                }
             }
 
-            if (x == "-nan(ind)" || y == "-nan(ind") {
-                eyeX = -1;
-                eyeY = -1;
-            } else {
-                eyeX = Convert.ToDouble(x);
-                eyeY = Convert.ToDouble(y);
-            }
+            //
+            //TO DO : handle non gaze data
+            //
         }
 
         ~core_data() { }      
