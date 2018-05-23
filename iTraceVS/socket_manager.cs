@@ -9,14 +9,14 @@ namespace iTraceVS
     class socket_manager
     {
         private static int port = 8008;
-        static bool active = false;
+        public static bool active = false;
 
         static TcpClient client;
         static StreamReader clientIn;
-        static core_buffer buffer;
+        public static core_buffer buffer;
         private static Thread readWorker;
         private static Thread writeWorker;
-        private static reticle ret;
+        public static reticle ret;
 
         public static void getSocket() {
             try {
@@ -29,8 +29,8 @@ namespace iTraceVS
 
                 readWorker = new Thread(readData);
                 readWorker.Start();
-                writeWorker = new Thread(writeData);
-                writeWorker.Start();
+                //writeWorker = new Thread(writeData);
+                //writeWorker.Start();
             }
             catch (Exception e) {
                 Console.WriteLine(e.ToString());               
@@ -62,6 +62,7 @@ namespace iTraceVS
             active = false;
             client = null;
             clientIn = null;
+            xml_writer.xmlEnd();
         }
         
         public static void reticleShow(bool show) {

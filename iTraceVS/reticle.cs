@@ -18,8 +18,7 @@ namespace iTraceVS
         private System.Windows.Forms.Timer timer;
         private Point newPos;
 
-        public reticle()
-        {
+        public reticle() {
             Hide();
             totalX = 0;
             totalY = 0;
@@ -41,18 +40,15 @@ namespace iTraceVS
         }
 
         //Use timer to update reticle posistion because Location cannot be directly set from within the worker thread
-        void timerTick(object sender, EventArgs e)
-        {
+        void timerTick(object sender, EventArgs e) {
             Location = newPos;
         }
 
-        void reticleFormPaint(object sender, PaintEventArgs e)
-        {
+        void reticleFormPaint(object sender, PaintEventArgs e) {
             e.Graphics.DrawEllipse(crossPen, (Width - 15) / 2, (Height - 15) / 2, 15, 15);
         }
 
-        public void toDraw(bool draw)
-        {
+        public void toDraw(bool draw) {
             display = draw;
             if (display)
                 Show();
@@ -60,8 +56,7 @@ namespace iTraceVS
                 Hide();
         }
 
-        public void updateReticle(int x, int y)
-        {
+        public void updateReticle(int x, int y) {
             //No reason to do anything if it can't be seen...
             if (!display)
                 return;
@@ -87,8 +82,7 @@ namespace iTraceVS
              * evaluate the last MAX_NUM_POINTS.
              */
 
-            if (xPoints.Count == MAX_NUM_POINTS)
-            {
+            if (xPoints.Count == MAX_NUM_POINTS) {
                 double avgX = totalX / MAX_NUM_POINTS;
                 double avgY = totalY / MAX_NUM_POINTS;
 
