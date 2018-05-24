@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace iTraceVS
@@ -39,9 +40,11 @@ namespace iTraceVS
         }
 
         public void enqueue(core_data cd) {
-            if (mutex.WaitOne(75)) {
+            if (mutex.WaitOne(60)) {
                 buffer.Enqueue(cd);
                 mutex.ReleaseMutex();
+                if (cd.sessionTime > 0)
+                    socket_manager.ret.updateReticle(Convert.ToInt32(cd.eyeX), Convert.ToInt32(cd.eyeY));
             }
         }
         

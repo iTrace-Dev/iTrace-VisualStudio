@@ -18,6 +18,7 @@ namespace iTraceVS
         public core_data(string data) {
             int i = 0;
             string type = "", x = "", y = "", session = "";
+            string path = "", id = "";
 
             while (data[i] != ',')
             {
@@ -59,10 +60,25 @@ namespace iTraceVS
                     eyeY = Convert.ToDouble(y);
                 }
             }
+            else if (type == "session") {
+                while (i < data.Length) {
+                    path += data[i];
+                    ++i;
+                }
+                --i;
 
-            //
-            //TO DO : handle non gaze data
-            //
+                while (data[i] != '\\') {
+                    id = id.Insert(0, data[i].ToString());
+                    --i;
+                }
+                
+                eyeX = -1;
+                eyeY = -1;
+                sessionTime = -1;
+
+                xml_writer.filePath = path + "/visualStudio_" + id + ".xml";
+                xml_writer.xmlStart();
+            }
         }
 
         ~core_data() { }      

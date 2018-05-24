@@ -15,7 +15,6 @@ namespace iTraceVS
         static StreamReader clientIn;
         public static core_buffer buffer;
         private static Thread readWorker;
-        private static Thread writeWorker;
         public static reticle ret;
 
         public static void getSocket() {
@@ -29,8 +28,9 @@ namespace iTraceVS
 
                 readWorker = new Thread(readData);
                 readWorker.Start();
-                //writeWorker = new Thread(writeData);
-                //writeWorker.Start();
+                
+                //change button text
+
             }
             catch (Exception e) {
                 Console.WriteLine(e.ToString());               

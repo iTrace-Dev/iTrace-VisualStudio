@@ -17,12 +17,14 @@ namespace iTraceVS
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
         private static System.Windows.Forms.Timer timer;
+        public static String filePath = "plugin_test.xml";
 
         public static void xmlStart() {
             prefs = new XmlWriterSettings() {
                 Indent = true
             };
-            writer = XmlWriter.Create("plugin_test.xml", prefs);
+            System.Diagnostics.Debug.WriteLine(filePath);
+            writer = XmlWriter.Create(filePath, prefs);
             writer.WriteStartDocument();
             writer.WriteStartElement("plugin");
 
@@ -49,7 +51,6 @@ namespace iTraceVS
                 data = socket_manager.buffer.dequeue();
                 if (data.sessionTime != -1) {
                     writeResponse(data.sessionTime, data.eyeX, data.eyeY);
-                    socket_manager.ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
                 }
             }
         }
