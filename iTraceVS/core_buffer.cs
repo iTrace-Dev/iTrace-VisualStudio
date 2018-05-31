@@ -27,11 +27,9 @@ namespace iTraceVS
         public core_data dequeue() {
             core_data cd = new core_data();
 
-            while (buffer.Count == 0) {
-                Thread.Sleep(10);
-            }
-
-            if (mutex.WaitOne(75)) {
+            if (buffer.Count == 0)
+                ; //Do nothing if there is no data in the buffer
+            else if (mutex.WaitOne(75)) {
                 cd = buffer.Dequeue();
                 mutex.ReleaseMutex();
             }

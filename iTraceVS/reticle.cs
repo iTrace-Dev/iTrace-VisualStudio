@@ -78,7 +78,7 @@ namespace iTraceVS
              * then we take an average of the points and move the reticle.
              *
              * To save re-totaling the points, we then just remove the oldest value from the
-             * total and the lists (back) so the next time the function is called we only
+             * total and the lists (last) so the next time the function is called we only
              * evaluate the last MAX_NUM_POINTS.
              */
 

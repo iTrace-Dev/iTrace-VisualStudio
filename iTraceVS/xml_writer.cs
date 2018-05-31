@@ -23,7 +23,6 @@ namespace iTraceVS
             prefs = new XmlWriterSettings() {
                 Indent = true
             };
-            System.Diagnostics.Debug.WriteLine(filePath);
             writer = XmlWriter.Create(filePath, prefs);
             writer.WriteStartDocument();
             writer.WriteStartElement("plugin");
@@ -41,7 +40,9 @@ namespace iTraceVS
             //close environment
             writer.WriteEndElement();
 
-            timer = new System.Windows.Forms.Timer() { Interval = 10, Enabled = true };
+            writer.WriteStartElement("gazes");
+
+            timer = new System.Windows.Forms.Timer() { Interval = 8, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
         }
 
@@ -56,28 +57,43 @@ namespace iTraceVS
         }
 
         public static void writeResponse(Int64 sessionTime, double x, double y) {
-            writer.WriteStartElement("responses");
-           
+            writer.WriteStartElement("response");
+
+            String fileName = getFileName();
+            writer.WriteAttributeString("object_name", fileName);
+            if (fileName != "")
+                writer.WriteAttributeString("type", fileName.Split('.')[1]);
+            else
+                writer.WriteAttributeString("type", "");
+
             writer.WriteAttributeString("x", Convert.ToString(x));
             writer.WriteAttributeString("y", Convert.ToString(y));
-            writer.WriteAttributeString("session-time", Convert.ToString(sessionTime));
+            writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
+            writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
 
-            //additional attributes
-            writer.WriteAttributeString("path", getFile());
+            writer.WriteAttributeString("path", getFilePath());
             getLineCol(x, y);
 
             writer.WriteEndElement();
             writer.Flush();
         }
 
-        static string getFile() {
+        static string getFileName() {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            string filePath = "no active file";
-            if (dte.ActiveDocument.FullName != null) {
-                filePath = dte.ActiveDocument.FullName;
-                //Debug.WriteLine(dte.ActiveDocument.ActiveWindow.Left + ", " + dte.ActiveDocument.ActiveWindow.Top + " : " + x + ", " + y);
+            string fileName = "";
+            if (dte.ActiveDocument != null) {
+                fileName = dte.ActiveDocument.Name;
             }
-            return filePath;
+            return fileName;
+        }
+
+        static string getFilePath() {
+            DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            string path = "";
+            if (dte.ActiveDocument != null) {
+                path = dte.ActiveDocument.FullName;
+            }
+            return path;
         }
 
         static void getLineCol(double x, double y) {
@@ -107,12 +123,12 @@ namespace iTraceVS
 
                         SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
                         if (bufferPos != null) {
+                            writer.WriteAttributeString("line_height", "");
+                            writer.WriteAttributeString("font_height", "");
                             writer.WriteAttributeString("line", bufferPos.Value.GetContainingLine().LineNumber.ToString()); //0-indexed, the +1 is handled later in the toolchain
                             writer.WriteAttributeString("col", (bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position).ToString());
-                        }
-                        else {
-                            writer.WriteAttributeString("line", "nan");
-                            writer.WriteAttributeString("col", "nan");
+                            writer.WriteAttributeString("line_base_x", "");
+                            writer.WriteAttributeString("line_base_y", "");
                         }
                     }
                 }
@@ -143,6 +159,7 @@ namespace iTraceVS
         }
 
         public static void xmlEnd() {
+            writer.WriteEndElement();
             writer.WriteEndElement();
             writer.WriteEndDocument();
             writer.Flush();

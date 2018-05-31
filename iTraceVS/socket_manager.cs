@@ -25,12 +25,10 @@ namespace iTraceVS
                 buffer = core_buffer.Instance;
                 ret = new reticle();
                 active = true;
-
-                readWorker = new Thread(readData);
-                readWorker.Start();
+                itrace_windowControl.connected = true;
                 
-                //change button text
-
+                readWorker = new Thread(readData);
+                readWorker.Start();                
             }
             catch (Exception e) {
                 Console.WriteLine(e.ToString());               
