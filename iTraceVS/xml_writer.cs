@@ -9,6 +9,7 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
+using System.Diagnostics;
 
 namespace iTraceVS 
 {
@@ -59,45 +60,23 @@ namespace iTraceVS
         public static void writeResponse(Int64 sessionTime, double x, double y) {
             writer.WriteStartElement("response");
 
-            String fileName = getFileName();
-            writer.WriteAttributeString("object_name", fileName);
-            if (fileName != "")
-                writer.WriteAttributeString("type", fileName.Split('.')[1]);
-            else
-                writer.WriteAttributeString("type", "");
-
             writer.WriteAttributeString("x", Convert.ToString(x));
             writer.WriteAttributeString("y", Convert.ToString(y));
             writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
             writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
 
-            writer.WriteAttributeString("path", getFilePath());
             getLineCol(x, y);
 
             writer.WriteEndElement();
             writer.Flush();
         }
 
-        static string getFileName() {
-            DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            string fileName = "";
-            if (dte.ActiveDocument != null) {
-                fileName = dte.ActiveDocument.Name;
-            }
-            return fileName;
-        }
-
-        static string getFilePath() {
-            DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            string path = "";
-            if (dte.ActiveDocument != null) {
-                path = dte.ActiveDocument.FullName;
-            }
-            return path;
-        }
-
         static void getLineCol(double x, double y) {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            //Var to print
+            String lineHeight = "", fontHeight = "", lineBaseX = "", lineBaseY = ""; //The less crucial ones
+            int line = -1, col = -1;
+            String fileName = "", type = "", path = "";
 
             foreach (EnvDTE.Window window in dte.Windows) {
                 if (!window.Visible) {
@@ -119,26 +98,41 @@ namespace iTraceVS
                         userData.GetData(ref guidViewHost, out holder);
                         IWpfTextViewHost viewHost = (IWpfTextViewHost)holder;
                         IWpfTextView wpfTextView = viewHost.TextView;
-                        Point localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
-
+                        Point localPoint = new Point(-1, -1);
+                        try {
+                            localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
+                        }
+                        catch {  }
+                        
                         SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
                         if (bufferPos != null) {
-                            writer.WriteAttributeString("line_height", "");
-                            writer.WriteAttributeString("font_height", "");
-                            writer.WriteAttributeString("line", bufferPos.Value.GetContainingLine().LineNumber.ToString()); //0-indexed, the +1 is handled later in the toolchain
-                            writer.WriteAttributeString("col", (bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position).ToString());
-                            writer.WriteAttributeString("line_base_x", "");
-                            writer.WriteAttributeString("line_base_y", "");
+                            fileName = window.Document.Name;
+                            type = fileName.Split('.')[1];
+                            path = openWindowPath;
+                            line = bufferPos.Value.GetContainingLine().LineNumber + 1; 
+                            col = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position;
                         }
                     }
                 }
             }
+
+            writer.WriteAttributeString("object_name", fileName);
+            writer.WriteAttributeString("type", type);
+            writer.WriteAttributeString("path", path);
+
+            writer.WriteAttributeString("line", line.ToString());
+            writer.WriteAttributeString("col", col.ToString());
+
+            writer.WriteAttributeString("line_height", lineHeight);
+            writer.WriteAttributeString("font_height", fontHeight);
+            writer.WriteAttributeString("line_base_x", lineBaseX);
+            writer.WriteAttributeString("line_base_y", lineBaseY);
         }
 
         static SnapshotPoint? ConvertToPosition(ITextView view, Point pos) {
             SnapshotPoint? position = null;
             {
-                // See that we have  view
+                // See that we have a view
                 if (view != null && view.TextViewLines != null) {
                     if ((pos.X >= 0.0) && (pos.X < view.ViewportWidth) && (pos.Y >= 0.0) && (pos.Y < view.ViewportHeight)) {
                         var line = view.TextViewLines.GetTextViewLineContainingYCoordinate(pos.Y + view.ViewportTop);

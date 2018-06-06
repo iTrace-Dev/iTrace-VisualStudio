@@ -26,17 +26,19 @@
         [SuppressMessage("Microsoft.Globalization", "CA1300:SpecifyMessageBoxOptions", Justification = "Sample code")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
 
-        bool start = false;
+        public static bool connected = false;
 
         private void attemptConnection(object sender, RoutedEventArgs e)
         {
-            if (!start) {
+            if (!connected) {
                 socket_manager.getSocket();
-                start = true;
+                if (connected)
+                    button1.Content = "Disconnect";
             }
             else {
                 socket_manager.closeSocket();
-                start = false;
+                connected = false;
+                button1.Content = "Connect to Core";
             } 
         }
 
