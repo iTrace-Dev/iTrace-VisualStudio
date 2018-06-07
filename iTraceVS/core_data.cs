@@ -1,5 +1,4 @@
 ﻿using System;
-//using System.Xml;
 
 namespace iTraceVS
 {
@@ -16,67 +15,28 @@ namespace iTraceVS
         }
 
         public core_data(string data) {
-            int i = 0;
-            string type = "", x = "", y = "", session = "";
-            string path = "", id = "";
+            string[] data_string;
 
-            while (data[i] != ',')
-            {
-                type += data[i];
-                ++i;
-            }
-            ++i;
+            data_string = data.Split(',');
 
-            if (type == "gaze") {
-                while (data[i] != ',')
-                {
-                    session += data[i];
-                    ++i;
-                }
-                sessionTime = Convert.ToInt64(session);
-                ++i; //move past the ','
+            if (data_string[0] == "gaze") {
+                sessionTime = Convert.ToInt64(data_string[1]);
 
-                while (data[i] != ',')
-                {
-                    x += data[i];
-                    ++i;
-                }
-                ++i; //move past the ','
-
-                while (i < data.Length)
-                {
-                    y += data[i];
-                    ++i;
-                }
-
-                if (x == "-nan(ind)" || y == "-nan(ind")
-                {
+                if (data_string[2] == "nan" || data_string[3] == "nan") {
                     eyeX = -1;
                     eyeY = -1;
                 }
-                else
-                {
-                    eyeX = Convert.ToDouble(x);
-                    eyeY = Convert.ToDouble(y);
+                else {
+                    eyeX = Convert.ToDouble(data_string[2]);
+                    eyeY = Convert.ToDouble(data_string[3]);
                 }
             }
-            else if (type == "session") {
-                while (i < data.Length) {
-                    path += data[i];
-                    ++i;
-                }
-                --i;
-
-                while (data[i] != '\\') {
-                    id = id.Insert(0, data[i].ToString());
-                    --i;
-                }
-                
+            else if (data_string[0] == "session") {                
                 eyeX = -1;
                 eyeY = -1;
                 sessionTime = -1;
 
-                xml_writer.filePath = path + "/visualStudio_" + id + ".xml";
+                xml_writer.filePath = data_string[1] + "/visualStudio_" + data_string[1].Split('\\')[1] + ".xml";
                 xml_writer.xmlStart();
             }
         }

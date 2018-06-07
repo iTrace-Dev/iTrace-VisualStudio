@@ -96,6 +96,5 @@ namespace iTraceVS
                 yPoints.RemoveAt(yPoints.Count - 1);
             }
         }
-    }
-    
+    } 
 }

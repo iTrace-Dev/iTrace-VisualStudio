@@ -13,8 +13,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
-        public itrace_windowControl()
-        {
+        public itrace_windowControl() {
             this.InitializeComponent();
         }
 
@@ -28,8 +27,7 @@
 
         public static bool connected = false;
 
-        private void attemptConnection(object sender, RoutedEventArgs e)
-        {
+        private void attemptConnection(object sender, RoutedEventArgs e) {
             if (!connected) {
                 socket_manager.getSocket();
                 if (connected)
@@ -42,24 +40,20 @@
             } 
         }
 
-        private void Reticle_Checked(object sender, RoutedEventArgs e)
-        {
+        private void Reticle_Checked(object sender, RoutedEventArgs e) {
             socket_manager.reticleShow(true);
         }
 
-        private void Reticle_Unchecked(object sender, RoutedEventArgs e)
-        {
+        private void Reticle_Unchecked(object sender, RoutedEventArgs e) {
             socket_manager.reticleShow(false);
         }
 
-        private void Highlight_Checked(object sender, RoutedEventArgs e)
-        {
+        /*private void Highlight_Checked(object sender, RoutedEventArgs e) {
 
         }
 
-        private void Highlight_Unchecked(object sender, RoutedEventArgs e)
-        {
+        private void Highlight_Unchecked(object sender, RoutedEventArgs e) {
 
-        }
+        }*/
     }
 }

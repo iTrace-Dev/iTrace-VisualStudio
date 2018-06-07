@@ -29,7 +29,7 @@ namespace iTraceVS
 
             if (buffer.Count == 0)
                 ; //Do nothing if there is no data in the buffer
-            else if (mutex.WaitOne(75)) {
+            else if (mutex.WaitOne(25)) {
                 cd = buffer.Dequeue();
                 mutex.ReleaseMutex();
             }
