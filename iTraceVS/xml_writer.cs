@@ -106,6 +106,7 @@ namespace iTraceVS
                         
                         SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
                         if (bufferPos != null) {
+                            lineHeight = wpfTextView.FormattedLineSource.LineHeight.ToString();
                             fileName = window.Document.Name;
                             type = fileName.Split('.')[1];
                             path = openWindowPath;
@@ -159,6 +160,5 @@ namespace iTraceVS
             writer.Flush();
             writer.Close();
         }
-
     }
 }

@@ -36,7 +36,7 @@ namespace iTraceVS
                 eyeY = -1;
                 sessionTime = -1;
 
-                xml_writer.filePath = data_string[1] + "/visualStudio_" + data_string[1].Split('\\')[1] + ".xml";
+                xml_writer.filePath = data_string[1] + "/visualStudio_" + data_string[1].Split('\\')[3] + ".xml";
                 xml_writer.xmlStart();
             }
         }
