@@ -26,6 +26,7 @@
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
 
         public static bool connected = false;
+        public static bool highlighting = false;
 
         private void attemptConnection(object sender, RoutedEventArgs e) {
             if (!connected) {
@@ -48,12 +49,12 @@
             socket_manager.reticleShow(false);
         }
 
-        /*private void Highlight_Checked(object sender, RoutedEventArgs e) {
-
+        private void Highlight_Checked(object sender, RoutedEventArgs e) {
+            highlighting = true;
         }
 
         private void Highlight_Unchecked(object sender, RoutedEventArgs e) {
-
-        }*/
+            highlighting = false;
+        }
     }
 }

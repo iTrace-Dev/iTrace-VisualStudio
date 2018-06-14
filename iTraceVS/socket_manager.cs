@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
 
 namespace iTraceVS
 {

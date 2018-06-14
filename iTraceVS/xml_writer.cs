@@ -9,7 +9,6 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
-using System.Diagnostics;
 
 namespace iTraceVS 
 {
@@ -18,7 +17,8 @@ namespace iTraceVS
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
         private static System.Windows.Forms.Timer timer;
-        public static String filePath = "plugin_test.xml";
+        public static String filePath = "default.xml";
+        public static SnapshotPoint? bufferPos;
 
         public static void xmlStart() {
             prefs = new XmlWriterSettings() {
@@ -65,16 +65,16 @@ namespace iTraceVS
             writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
             writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
 
-            getLineCol(x, y);
+            getVSData(x, y);
 
             writer.WriteEndElement();
             writer.Flush();
         }
 
-        static void getLineCol(double x, double y) {
+        static void getVSData(double x, double y) {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             //Var to print
-            String lineHeight = "", fontHeight = "", lineBaseX = "", lineBaseY = ""; //The less crucial ones
+            String lineHeight = "", fontHeight = "", lineBaseX = "", lineBaseY = ""; 
             int line = -1, col = -1;
             String fileName = "", type = "", path = "";
 
@@ -104,14 +104,19 @@ namespace iTraceVS
                         }
                         catch {  }
                         
-                        SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
+                        bufferPos = ConvertToPosition(wpfTextView, localPoint);
                         if (bufferPos != null) {
-                            lineHeight = wpfTextView.FormattedLineSource.LineHeight.ToString();
                             fileName = window.Document.Name;
                             type = fileName.Split('.')[1];
                             path = openWindowPath;
                             line = bufferPos.Value.GetContainingLine().LineNumber + 1; 
                             col = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position;
+
+                            var textLine = wpfTextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + wpfTextView.ViewportTop);
+                            lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
+                            lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
+                            lineHeight = textLine.Height.ToString();
+                            fontHeight = textLine.TextHeight.ToString();
                         }
                     }
                 }
@@ -144,7 +149,7 @@ namespace iTraceVS
                                 //For purposes of hover events, pretend the last line in the buffer
                                 //actually is padded by the EndOfLineWidth (even though it is not).
                                 if ((line.Left <= x) && (x < line.TextRight + line.EndOfLineWidth))
-                                    position = line.End;
+                                    position = line.End;                                
                             }
                         }
                     }
@@ -154,8 +159,8 @@ namespace iTraceVS
         }
 
         public static void xmlEnd() {
-            writer.WriteEndElement();
-            writer.WriteEndElement();
+            writer.WriteEndElement();   //close gazes
+            writer.WriteEndElement();   //close plugin
             writer.WriteEndDocument();
             writer.Flush();
             writer.Close();
