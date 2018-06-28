@@ -16,7 +16,7 @@ namespace iTraceVS
         private List<int> yPoints = new List<int>();
         private bool display;
         private System.Windows.Forms.Timer timer;
-        private Point newPos;
+        public static Point newPos;
 
         public reticle() {
             Hide();

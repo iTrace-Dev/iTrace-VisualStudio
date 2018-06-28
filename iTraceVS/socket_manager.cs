@@ -12,7 +12,6 @@ namespace iTraceVS
 
         static TcpClient client;
         static StreamReader clientIn;
-        public static core_buffer buffer;
         private static Thread readWorker;
         public static reticle ret;
 
@@ -21,7 +20,6 @@ namespace iTraceVS
                 client = new TcpClient("localhost", port);
                 clientIn = new StreamReader(client.GetStream());
                 xml_writer.xmlStart();
-                buffer = core_buffer.Instance;
                 ret = new reticle();
                 active = true;
                 itrace_windowControl.connected = true;
@@ -38,21 +36,10 @@ namespace iTraceVS
             while (active) {
                 if (client.GetStream().DataAvailable == true) {
                     string data = clientIn.ReadLine();
-                    buffer.enqueue(new core_data(data));
+                    xml_writer.dataReady = true;
+                    xml_writer.data = new core_data(data);
                 }
             }
-        }
-
-        static void writeData() {
-            core_data data;
-            while (active) {
-                data = buffer.dequeue();
-                if (data.sessionTime != -1) {
-                    xml_writer.writeResponse(data.sessionTime, data.eyeX, data.eyeY);
-                    ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
-                }
-            }
-            xml_writer.xmlEnd();
         }
 
         public static void closeSocket() {

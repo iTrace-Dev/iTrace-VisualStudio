@@ -20,6 +20,9 @@ namespace iTraceVS
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
+        public static bool dataReady = false;
+        public static core_data data = new core_data();
+
         public static void xmlStart() {
             prefs = new XmlWriterSettings() {
                 Indent = true
@@ -43,17 +46,19 @@ namespace iTraceVS
 
             writer.WriteStartElement("gazes");
 
-            timer = new System.Windows.Forms.Timer() { Interval = 8, Enabled = true };
+            timer = new System.Windows.Forms.Timer() { Interval = 3, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
         }
 
         static void timerTick(object sender, EventArgs e) {
-            core_data data;
-            if (socket_manager.active) {
-                data = socket_manager.buffer.dequeue();
+            //core_data data;
+            if (socket_manager.active && dataReady) {
+                //data = socket_manager.buffer.dequeue();
                 if (data.sessionTime != -1) {
                     writeResponse(data.sessionTime, data.eyeX, data.eyeY);
+                    socket_manager.ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
                 }
+                dataReady = false;
             }
         }
 
@@ -110,7 +115,7 @@ namespace iTraceVS
                             type = fileName.Split('.')[1];
                             path = openWindowPath;
                             line = bufferPos.Value.GetContainingLine().LineNumber + 1; 
-                            col = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position;
+                            col = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position + 1;
 
                             var textLine = wpfTextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + wpfTextView.ViewportTop);
                             lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to

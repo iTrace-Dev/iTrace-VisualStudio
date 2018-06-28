@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System.Windows.Media;
-using System.Diagnostics;
 
 namespace iTraceVS {
 
@@ -22,10 +21,10 @@ namespace iTraceVS {
     [UserVisible(true)]
     internal class HighlightWordFormatDefinition : MarkerFormatDefinition {
         public HighlightWordFormatDefinition() {
-            this.BackgroundColor = Colors.LightBlue;
-            this.ForegroundColor = Colors.DarkBlue;
-            this.DisplayName = "Highlight Word";
-            this.ZOrder = 5;
+            BackgroundColor = Colors.LightBlue;
+            ForegroundColor = Colors.DarkBlue;
+            DisplayName = "Highlight Word";
+            ZOrder = 5;
         }
     }
 
@@ -43,13 +42,13 @@ namespace iTraceVS {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         public HighlightWordTagger(ITextView view, ITextBuffer sourceBuffer, ITextSearchService textSearchService, ITextStructureNavigator textStructureNavigator) {
-            this.View = view;
-            this.SourceBuffer = sourceBuffer;
-            this.TextSearchService = textSearchService;
-            this.TextStructureNavigator = textStructureNavigator;
-            this.WordSpans = new NormalizedSnapshotSpanCollection();
-            this.CurrentWord = null;
-            timer = new System.Windows.Forms.Timer() { Interval = 20, Enabled = true };
+            View = view;
+            SourceBuffer = sourceBuffer;
+            TextSearchService = textSearchService;
+            TextStructureNavigator = textStructureNavigator;
+            WordSpans = new NormalizedSnapshotSpanCollection();
+            CurrentWord = null;
+            timer = new System.Windows.Forms.Timer() { Interval = 15, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
         }
 
@@ -65,7 +64,7 @@ namespace iTraceVS {
             if (!point.HasValue)
                 return;
 
-            // If the new caret position is still within the current word (and on the same snapshot), we don't need to check it   
+            //If the new caret position is still within the current word (and on the same snapshot), we don't need to check it   
             if (CurrentWord.HasValue
                 && CurrentWord.Value.Snapshot == View.TextSnapshot
                 && point.Value >= CurrentWord.Value.Start
@@ -92,7 +91,7 @@ namespace iTraceVS {
                     foundWord = false;
                 }
                 else {
-                    // Try again, one character previous.    
+                    //Try again, one character previous.    
                     //If the caret is at the end of a word, pick up the word.  
                     word = TextStructureNavigator.GetExtentOfWord(currentRequest - 1);
 
@@ -138,14 +137,14 @@ namespace iTraceVS {
             if (CurrentWord == null)
                 yield break;
 
-            // Hold on to a "snapshot" of the word spans and current word, so that we maintain the same collection throughout  
+            //Hold on to a "snapshot" of the word spans and current word, so that we maintain the same collection throughout  
             SnapshotSpan currentWord = CurrentWord.Value;
             NormalizedSnapshotSpanCollection wordSpans = WordSpans;
 
             if (spans.Count == 0 || wordSpans.Count == 0)
                 yield break;
 
-            // If the requested snapshot isn't the same as the one our words are on, translate our spans to the expected snapshot   
+            //If the requested snapshot isn't the same as the one our words are on, translate our spans to the expected snapshot   
             if (spans[0].Snapshot != wordSpans[0].Snapshot) {
                 wordSpans = new NormalizedSnapshotSpanCollection(
                     wordSpans.Select(span => span.TranslateTo(spans[0].Snapshot, SpanTrackingMode.EdgeExclusive)));
@@ -153,13 +152,13 @@ namespace iTraceVS {
                 currentWord = currentWord.TranslateTo(spans[0].Snapshot, SpanTrackingMode.EdgeExclusive);
             }
 
-            // First, yield back the word the cursor is under (if it overlaps)   
-            // Note that we'll yield back the same word again in the wordspans collection;   
-            // the duplication here is expected.   
+            //First, yield back the word the cursor is under (if it overlaps)   
+            //Note that we'll yield back the same word again in the wordspans collection;   
+            //the duplication here is expected.   
             if (spans.OverlapsWith(new NormalizedSnapshotSpanCollection(currentWord)))
                 yield return new TagSpan<HighlightWordTag>(currentWord, new HighlightWordTag());
 
-            // Second, yield all the other words in the file   
+            //Second, yield all the other words in the file   
             foreach (SnapshotSpan span in NormalizedSnapshotSpanCollection.Overlap(spans, wordSpans)) {
                 yield return new TagSpan<HighlightWordTag>(span, new HighlightWordTag());
             }

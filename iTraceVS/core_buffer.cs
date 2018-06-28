@@ -6,7 +6,7 @@ namespace iTraceVS
 {
     class core_buffer
     {
-        private static Queue<core_data> buffer;
+        public static Queue<core_data> buffer;
         private static Mutex mutex;
         private static core_buffer singleton;
 
@@ -29,7 +29,7 @@ namespace iTraceVS
 
             if (buffer.Count == 0)
                 ; //Do nothing if there is no data in the buffer
-            else if (mutex.WaitOne(25)) {
+            else if (mutex.WaitOne(5)) {
                 cd = buffer.Dequeue();
                 mutex.ReleaseMutex();
             }
@@ -38,7 +38,7 @@ namespace iTraceVS
         }
 
         public void enqueue(core_data cd) {
-            if (mutex.WaitOne(60)) {
+            if (mutex.WaitOne(20)) {
                 buffer.Enqueue(cd);
                 mutex.ReleaseMutex();
                 if (cd.sessionTime > 0)
