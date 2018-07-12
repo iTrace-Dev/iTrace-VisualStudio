@@ -35,6 +35,8 @@
                     button1.Content = "Disconnect";
             }
             else {
+                displayBox.IsChecked = false;
+                highlightBox.IsChecked = false;
                 socket_manager.closeSocket();
                 connected = false;
                 button1.Content = "Connect to Core";
