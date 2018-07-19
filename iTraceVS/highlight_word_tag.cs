@@ -33,7 +33,6 @@ namespace iTraceVS {
         ITextBuffer SourceBuffer { get; set; }
         ITextSearchService TextSearchService { get; set; }
         ITextStructureNavigator TextStructureNavigator { get; set; }
-        NormalizedSnapshotSpanCollection WordSpans { get; set; }
         SnapshotSpan? CurrentWord { get; set; }
         SnapshotPoint RequestedPoint { get; set; }
         object updateLock = new object();
@@ -46,7 +45,6 @@ namespace iTraceVS {
             SourceBuffer = sourceBuffer;
             TextSearchService = textSearchService;
             TextStructureNavigator = textStructureNavigator;
-            WordSpans = new NormalizedSnapshotSpanCollection();
             CurrentWord = null;
             timer = new System.Windows.Forms.Timer() { Interval = 25, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
@@ -64,7 +62,7 @@ namespace iTraceVS {
             if (!point.HasValue)
                 return;
 
-            //If the new caret position is still within the current word (and on the same snapshot), we don't need to check it   
+            //If the new gaze position is still within the current word, we don't need to check it   
             if (CurrentWord.HasValue
                 && CurrentWord.Value.Snapshot == View.TextSnapshot
                 && point.Value >= CurrentWord.Value.Start
@@ -77,11 +75,10 @@ namespace iTraceVS {
         }
 
         void UpdateWordAdornments() {
-            SnapshotPoint currentRequest = RequestedPoint;
-            List<SnapshotSpan> wordSpans = new List<SnapshotSpan>();
-            //Find all words in the buffer like the one the caret is on  
+            SnapshotPoint currentRequest = RequestedPoint;             
             TextExtent word = TextStructureNavigator.GetExtentOfWord(currentRequest);
             bool foundWord = true;
+
             //If we've selected something not worth highlighting, we might have missed a "word" by a little bit  
             if (!WordExtentIsValid(currentRequest, word)) {
                 //Before we retry, make sure it is worthwhile   
@@ -92,7 +89,7 @@ namespace iTraceVS {
                 }
                 else {
                     //Try again, one character previous.    
-                    //If the caret is at the end of a word, pick up the word.  
+                    //If looking at the end of a word, pick up the word.  
                     word = TextStructureNavigator.GetExtentOfWord(currentRequest - 1);
 
                     //If the word still isn't valid, we're done   
@@ -103,32 +100,30 @@ namespace iTraceVS {
 
             if (!foundWord) {
                 //If we couldn't find a word, clear out the existing markers  
-                SynchronousUpdate(currentRequest, new NormalizedSnapshotSpanCollection(), null);
+                SynchronousUpdate(currentRequest, null);
                 return;
             }
 
             SnapshotSpan currentWord = word.Span;
-            //If this is the current word, and the caret moved within a word, we're done.   
+            //If this is the current word, and the user's eyes moved within a word, we're done.   
             if (CurrentWord.HasValue && currentWord == CurrentWord)
                 return;
 
             //If another change hasn't happened, do a real update   
             if (currentRequest == RequestedPoint)
-                SynchronousUpdate(currentRequest, new NormalizedSnapshotSpanCollection(currentWord), currentWord);
+                SynchronousUpdate(currentRequest, currentWord);
         }
 
         static bool WordExtentIsValid(SnapshotPoint currentRequest, TextExtent word) {
             return word.IsSignificant && currentRequest.Snapshot.GetText(word.Span).Any(c => char.IsLetterOrDigit(c));
         }
 
-        void SynchronousUpdate(SnapshotPoint currentRequest, NormalizedSnapshotSpanCollection newSpans, SnapshotSpan? newCurrentWord) {
+        void SynchronousUpdate(SnapshotPoint currentRequest, SnapshotSpan? newCurrentWord) {
             lock (updateLock) {
                 if (currentRequest != RequestedPoint)
                     return;
 
-                WordSpans = newSpans;
                 CurrentWord = newCurrentWord;
-
                 TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(SourceBuffer.CurrentSnapshot, 0, SourceBuffer.CurrentSnapshot.Length)));
             }
         }
@@ -139,29 +134,12 @@ namespace iTraceVS {
 
             //Hold on to a "snapshot" of the word spans and current word, so that we maintain the same collection throughout  
             SnapshotSpan currentWord = CurrentWord.Value;
-            NormalizedSnapshotSpanCollection wordSpans = WordSpans;
 
-            if (spans.Count == 0 || wordSpans.Count == 0)
+            if (spans.Count == 0)
                 yield break;
 
-            //If the requested snapshot isn't the same as the one our words are on, translate our spans to the expected snapshot   
-            if (spans[0].Snapshot != wordSpans[0].Snapshot) {
-                wordSpans = new NormalizedSnapshotSpanCollection(
-                    wordSpans.Select(span => span.TranslateTo(spans[0].Snapshot, SpanTrackingMode.EdgeExclusive)));
-
-                currentWord = currentWord.TranslateTo(spans[0].Snapshot, SpanTrackingMode.EdgeExclusive);
-            }
-
-            //First, yield back the word the cursor is under (if it overlaps)   
-            //Note that we'll yield back the same word again in the wordspans collection;   
-            //the duplication here is expected.   
             if (spans.OverlapsWith(new NormalizedSnapshotSpanCollection(currentWord)))
                 yield return new TagSpan<HighlightWordTag>(currentWord, new HighlightWordTag());
-
-            //Second, yield all the other words in the file   
-            foreach (SnapshotSpan span in NormalizedSnapshotSpanCollection.Overlap(spans, wordSpans)) {
-                yield return new TagSpan<HighlightWordTag>(span, new HighlightWordTag());
-            }
         }
 
         [Export(typeof(IViewTaggerProvider))]
