@@ -57,6 +57,7 @@ namespace iTraceVS
                 if (data.sessionTime != -1) {
                     writeResponse(data.sessionTime, data.eyeX, data.eyeY);
                     socket_manager.ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
+                    socket_manager.statusBar.setText(data.sessionTime.ToString());
                 }
                 dataReady = false;
             }
