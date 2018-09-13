@@ -37,11 +37,17 @@ namespace iTraceVS
                 sessionTime = -1;
 
                 string[] tmp = data_string[1].Split('\\');
-                xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
-                xml_writer.xmlStart();
+                if (xml_writer.filePath == "default.xml") {
+                    xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
+                    xml_writer.xmlStart();
+                } else {
+                    xml_writer.xmlEnd();
+                    xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
+                    xml_writer.xmlStart();
+                }
             }
         }
 
-        ~core_data() { }      
+        //~core_data() { }      
     }
 }
