@@ -44,11 +44,15 @@
         }
 
         private void Reticle_Checked(object sender, RoutedEventArgs e) {
-            socket_manager.reticleShow(true);
+            if (socket_manager.ret != null)
+                socket_manager.reticleShow(true);
+            else
+                displayBox.IsChecked = false;
         }
 
         private void Reticle_Unchecked(object sender, RoutedEventArgs e) {
-            socket_manager.reticleShow(false);
+            if (socket_manager.ret != null)
+                socket_manager.reticleShow(false);
         }
 
         private void Highlight_Checked(object sender, RoutedEventArgs e) {

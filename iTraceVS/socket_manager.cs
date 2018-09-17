@@ -13,7 +13,7 @@ namespace iTraceVS
         static TcpClient client;
         static StreamReader clientIn;
         private static Thread readWorker;
-        public static reticle ret;
+        public static reticle ret = null;
         public static status_bar statusBar;
 
         public static void getSocket() {
