@@ -3,7 +3,7 @@ iTrace Visual Studio Plugin
 
 Eye tracking in Visual Studio using the iTrace Engine
 
-This extension allows you to know what code files, line / column positions, and tokens were looked at during an eye tracking session.
+This extension allows you to know what code file, the line / column position, and the toke that was looked at during an eye tracking session.
 
 ## Building
 
