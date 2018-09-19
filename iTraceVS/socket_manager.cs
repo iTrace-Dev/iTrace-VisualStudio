@@ -14,7 +14,7 @@ namespace iTraceVS
         static StreamReader clientIn;
         private static Thread readWorker;
         public static reticle ret = null;
-        public static status_bar statusBar;
+        //public static status_bar statusBar;
 
         public static void getSocket() {
             try {
@@ -25,8 +25,8 @@ namespace iTraceVS
                 active = true;
                 itrace_windowControl.connected = true;
 
-                statusBar = new status_bar();
-                statusBar.startUpdating();
+                //statusBar = new status_bar();
+                //statusBar.startUpdating();
 
                 readWorker = new Thread(readData);
                 readWorker.Start();                
