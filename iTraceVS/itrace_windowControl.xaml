@@ -8,12 +8,12 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Name="MyToolWindow">
-    <Grid>
-        <StackPanel Orientation="Vertical">
-            <TextBlock HorizontalAlignment="Center" Height="45" Width="120" FontSize="30" Margin="10,5,170,5"><Run Text="iTraceVS"/></TextBlock>
-            <Button Content="Connect to Core" Click="attemptConnection" Height="45" Width="120" x:Name="button1" Margin="10,5,170,5"/>
-            <CheckBox Content="Display Reticle" Checked="Reticle_Checked" Unchecked="Reticle_Unchecked" Name="displayBox" Height="20" FontSize="15" Width="125" Margin="10,5,170,5"/>
-            <CheckBox Content="Highlight Tokens" Checked="Highlight_Checked" Unchecked="Highlight_Unchecked" Name="highlightBox" Height="20" FontSize="15" Width="145" Margin="10,5,145,5"/>
+    <Grid MaxWidth="300">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+            <TextBlock HorizontalAlignment="Left" Height="45" Width="120" FontSize="30" Margin="10,5,10,5"><Run Text="iTraceVS"/></TextBlock>
+            <Button HorizontalAlignment="Left" Content="Connect to Core" Click="attemptConnection" Height="45" Width="120" x:Name="button1" Margin="10,5,5,5"/>
+            <CheckBox HorizontalAlignment="Left" Content="Display Reticle" Checked="Reticle_Checked" Unchecked="Reticle_Unchecked" Name="displayBox" Height="20" FontSize="15" Width="125" Margin="10,5,5,5"/>
+            <CheckBox HorizontalAlignment="Left" Content="Highlight Tokens" Checked="Highlight_Checked" Unchecked="Highlight_Unchecked" Name="highlightBox" Height="20" FontSize="15" Width="145" Margin="10,5,5,5"/>
         </StackPanel>
     </Grid>
 </UserControl>
