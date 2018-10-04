@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.Shell.Interop;
+﻿using Microsoft;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Windows.Threading;
 
@@ -14,9 +16,9 @@ namespace iTraceVS
         //Must be created on UI Thread
         public status_bar()
         {
-            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+            ThreadHelper.ThrowIfNotOnUIThread();
             statusBar = (IVsStatusbar)itrace_windowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
-
+            Assumes.Present(statusBar);
             statusBarRefreshTimer = new DispatcherTimer();
             statusBarRefreshTimer.Tick += statusBarRefreshTimer_Tick;
             statusBarRefreshTimer.Interval = TimeSpan.FromSeconds(1);
@@ -34,7 +36,7 @@ namespace iTraceVS
 
         private void statusBarRefreshTimer_Tick(object sender, object e)
         {
-            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             int frozen;
 

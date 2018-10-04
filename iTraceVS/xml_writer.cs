@@ -78,6 +78,7 @@ namespace iTraceVS
         }
 
         static void getVSData(double x, double y) {
+            ThreadHelper.ThrowIfNotOnUIThread();
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             //Var to print
             String lineHeight = "", fontHeight = "", lineBaseX = "", lineBaseY = ""; 
