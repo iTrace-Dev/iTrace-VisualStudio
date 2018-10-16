@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System;
+using System.Runtime.InteropServices;
 
 namespace iTraceVS
 {
     public class reticle : Form
     {
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        
+        const int GWL_EXSTYLE = -20;
+        const int WS_EX_LAYERED = 0x80000;
+        const int WS_EX_TRANSPARENT = 0x20;
+
         Pen crossPen = new Pen(Color.Red, 3);
         private int MAX_NUM_POINTS = 15;
         private int totalX;
@@ -37,6 +48,13 @@ namespace iTraceVS
             Height = 60;
 
             Paint += new PaintEventHandler(reticleFormPaint);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            var existingStyle = GetWindowLong(this.Handle, GWL_EXSTYLE);
+            SetWindowLong(this.Handle, GWL_EXSTYLE, existingStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
         }
 
         //Use timer to update reticle posistion because Location cannot be directly set from within the worker thread
