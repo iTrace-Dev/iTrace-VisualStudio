@@ -10,13 +10,15 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
 
+using System.Diagnostics;
+
 namespace iTraceVS 
 {
     class xml_writer
     {
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
-        private static System.Windows.Forms.Timer timer;
+        private static System.Timers.Timer timer;
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
@@ -46,17 +48,14 @@ namespace iTraceVS
 
             writer.WriteStartElement("gazes");
 
-            timer = new System.Windows.Forms.Timer() { Interval = 3, Enabled = true };
-            timer.Tick += new EventHandler(timerTick);
+            timer = new System.Timers.Timer() { Interval = 6, AutoReset = true, Enabled = true };
+            timer.Elapsed += timerTick;
         }
 
         static void timerTick(object sender, EventArgs e) {
-            //core_data data;
             if (socket_manager.active && dataReady) {
-                //data = socket_manager.buffer.dequeue();
                 if (data.sessionTime != -1) {
                     writeResponse(data.sessionTime, data.eyeX, data.eyeY);
-                    socket_manager.ret.updateReticle(Convert.ToInt32(data.eyeX), Convert.ToInt32(data.eyeY));
                     //socket_manager.statusBar.setText(data.sessionTime.ToString());
                 }
                 dataReady = false;
@@ -71,7 +70,8 @@ namespace iTraceVS
             writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
             writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
 
-            getVSData(x, y);
+            //Comment out temporarily to sort out timing
+            //getVSData(x, y);
 
             writer.WriteEndElement();
             writer.Flush();

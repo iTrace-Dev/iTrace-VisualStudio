@@ -35,24 +35,11 @@
                     button1.Content = "Disconnect";
             }
             else {
-                displayBox.IsChecked = false;
                 highlightBox.IsChecked = false;
                 socket_manager.closeSocket();
                 connected = false;
                 button1.Content = "Connect to Core";
             } 
-        }
-
-        private void Reticle_Checked(object sender, RoutedEventArgs e) {
-            if (socket_manager.ret != null)
-                socket_manager.reticleShow(true);
-            else
-                displayBox.IsChecked = false;
-        }
-
-        private void Reticle_Unchecked(object sender, RoutedEventArgs e) {
-            if (socket_manager.ret != null)
-                socket_manager.reticleShow(false);
         }
 
         private void Highlight_Checked(object sender, RoutedEventArgs e) {

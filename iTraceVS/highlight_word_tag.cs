@@ -36,7 +36,7 @@ namespace iTraceVS {
         SnapshotSpan? CurrentWord { get; set; }
         SnapshotPoint RequestedPoint { get; set; }
         object updateLock = new object();
-        System.Windows.Forms.Timer timer;
+        System.Timers.Timer timer;
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
@@ -46,8 +46,8 @@ namespace iTraceVS {
             TextSearchService = textSearchService;
             TextStructureNavigator = textStructureNavigator;
             CurrentWord = null;
-            timer = new System.Windows.Forms.Timer() { Interval = 25, Enabled = true };
-            timer.Tick += new EventHandler(timerTick);
+            timer = new System.Timers.Timer() { Interval = 50, Enabled = true };
+            timer.Elapsed += timerTick;
         }
 
         void timerTick(object sender, EventArgs e) {

@@ -3,25 +3,21 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 
-namespace iTraceVS
-{
-    class socket_manager
-    {
+namespace iTraceVS {
+
+    class socket_manager {
         private static int port = 8008;
         public static bool active = false;
 
         static TcpClient client;
         static StreamReader clientIn;
         private static Thread readWorker;
-        public static reticle ret = null;
         //public static status_bar statusBar;
 
         public static void getSocket() {
             try {
                 client = new TcpClient("localhost", port);
                 clientIn = new StreamReader(client.GetStream());
-                xml_writer.xmlStart();
-                ret = new reticle();
                 active = true;
                 itrace_windowControl.connected = true;
 
@@ -52,10 +48,5 @@ namespace iTraceVS
             clientIn = null;
             xml_writer.xmlEnd();
         }
-        
-        public static void reticleShow(bool show) {
-            ret.toDraw(show);
-        }
-
     }
 }

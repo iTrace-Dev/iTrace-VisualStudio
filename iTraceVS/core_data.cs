@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace iTraceVS
-{
-    class core_data
-    {
+namespace iTraceVS {
+
+    class core_data {
         public double eyeX;
         public double eyeY;
         public Int64 sessionTime;
@@ -47,7 +46,5 @@ namespace iTraceVS
                 }
             }
         }
-
-        //~core_data() { }      
     }
 }
