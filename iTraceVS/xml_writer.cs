@@ -9,20 +9,20 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
-
 using System.Diagnostics;
 
-namespace iTraceVS 
-{
-    class xml_writer
-    {
+
+namespace iTraceVS {
+
+    class xml_writer {
+
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
-        private static System.Timers.Timer timer;
+        //private static System.Timers.Timer timer;
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
-        public static bool dataReady = false;
+        public static bool dataReady = true;
         public static core_data data = new core_data();
 
         public static void xmlStart() {
@@ -48,8 +48,8 @@ namespace iTraceVS
 
             writer.WriteStartElement("gazes");
 
-            timer = new System.Timers.Timer() { Interval = 6, AutoReset = true, Enabled = true };
-            timer.Elapsed += timerTick;
+            //timer = new System.Timers.Timer() { Interval = 6, AutoReset = true, Enabled = true };
+            //timer.Elapsed += timerTick;
         }
 
         static void timerTick(object sender, EventArgs e) {
@@ -62,34 +62,35 @@ namespace iTraceVS
             }
         }
 
-        public static void writeResponse(Int64 sessionTime, double x, double y) {
-            writer.WriteStartElement("response");
+        public static void writeResponse(long sessionTime, double x, double y) {
+            dataReady = false;
+            socket_manager.statusBar.setText(Convert.ToString(sessionTime));
 
+            writer.WriteStartElement("response");
             writer.WriteAttributeString("x", Convert.ToString(x));
             writer.WriteAttributeString("y", Convert.ToString(y));
             writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
             writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
+            //Debug.WriteLine(Convert.ToString(x) + ", " + Convert.ToString(y));
 
-            //Comment out temporarily to sort out timing
-            //getVSData(x, y);
+            getVSData(x, y);
 
             writer.WriteEndElement();
             writer.Flush();
+
+            dataReady = true;
         }
 
-        static void getVSData(double x, double y) {
-            ThreadHelper.ThrowIfNotOnUIThread();
+        static void getVSData(double x, double y) {            
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            //Var to print
-            String lineHeight = "", fontHeight = "", lineBaseX = "", lineBaseY = ""; 
+            //Variables to print
+            String lineHeight = "", fontHeight = "", fileName = "", type = "", path = ""; //lineBaseX = "", lineBaseY = ""; 
             int line = -1, col = -1;
-            String fileName = "", type = "", path = "";
 
             foreach (EnvDTE.Window window in dte.Windows) {
                 if (!window.Visible) {
                     continue;
                 }
-
                 // only look at text editor windows
                 if (window.Type == vsWindowType.vsWindowTypeDocument || window.Type == vsWindowType.vsWindowTypeCodeWindow) {
                     var openWindowPath = Path.Combine(window.Document.Path, window.Document.Name);
@@ -105,13 +106,17 @@ namespace iTraceVS
                         userData.GetData(ref guidViewHost, out holder);
                         IWpfTextViewHost viewHost = (IWpfTextViewHost)holder;
                         IWpfTextView wpfTextView = viewHost.TextView;
-                        Point localPoint = new Point(-1, -1);
-                        try {
-                            localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
-                        }
-                        catch {  }
-                        
+                        Point localPoint = new Point(Convert.ToInt32(x), Convert.ToInt32(y));
+
+                        //Debug.WriteLine("before try");
+                        //try {
+                        //    localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
+                        //}
+                        //catch {  }
+                        //Debug.WriteLine("pre bufferPos");
+
                         bufferPos = ConvertToPosition(wpfTextView, localPoint);
+
                         if (bufferPos != null) {
                             fileName = window.Document.Name;
                             type = fileName.Split('.')[1];
@@ -120,8 +125,8 @@ namespace iTraceVS
                             col = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position + 1;
 
                             var textLine = wpfTextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + wpfTextView.ViewportTop);
-                            lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
-                            lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
+                            //lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
+                            //lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
                             lineHeight = textLine.Height.ToString();
                             fontHeight = textLine.TextHeight.ToString();
                         }
@@ -138,8 +143,6 @@ namespace iTraceVS
 
             writer.WriteAttributeString("line_height", lineHeight);
             writer.WriteAttributeString("font_height", fontHeight);
-            writer.WriteAttributeString("line_base_x", lineBaseX);
-            writer.WriteAttributeString("line_base_y", lineBaseY);
         }
 
         static SnapshotPoint? ConvertToPosition(ITextView view, Point pos) {

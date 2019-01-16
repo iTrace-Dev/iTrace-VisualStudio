@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace iTraceVS {
 
     class core_data {
         public double eyeX;
         public double eyeY;
-        public Int64 sessionTime;
+        public long sessionTime;
 
         public core_data() {
             eyeX = -1;
@@ -40,6 +41,7 @@ namespace iTraceVS {
                     xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
                     xml_writer.xmlStart();
                 } else {
+                    Debug.WriteLine("sessionTime else");
                     xml_writer.xmlEnd();
                     xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
                     xml_writer.xmlStart();
