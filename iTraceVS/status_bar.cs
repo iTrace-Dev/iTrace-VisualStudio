@@ -13,7 +13,7 @@ namespace iTraceVS {
 
         //Must be created on UI Thread
         public status_bar() {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            //ThreadHelper.ThrowIfNotOnUIThread();
             statusBar = (IVsStatusbar)itrace_windowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
             Assumes.Present(statusBar);
             statusBarRefreshTimer = new DispatcherTimer();
@@ -30,7 +30,7 @@ namespace iTraceVS {
         }
 
         private void statusBarRefreshTimer_Tick(object sender, object e) {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            //ThreadHelper.ThrowIfNotOnUIThread();
 
             int frozen;
             statusBar.IsFrozen(out frozen);

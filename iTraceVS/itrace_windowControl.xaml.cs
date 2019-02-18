@@ -1,6 +1,8 @@
 ﻿namespace iTraceVS
 {
+    using Microsoft.VisualStudio.Shell;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -28,7 +30,16 @@
         public static bool connected = false;
         public static bool highlighting = false;
 
-        private void attemptConnection(object sender, RoutedEventArgs e) {
+        public void attemptConnection(object sender, RoutedEventArgs e) {
+            //itrace_toolCommand toolCommand;
+            //try {
+            //    toolCommand = itrace_toolCommand.Instance;
+            //    toolCommand.Execute(sender, e);
+            //}
+            //catch {
+                
+            //}
+
             if (!connected) {
                 socket_manager.getSocket();
                 if (connected)
@@ -39,7 +50,23 @@
                 socket_manager.closeSocket();
                 connected = false;
                 button1.Content = "Connect to Core";
-            } 
+            }
+        }
+
+        public void attemptConnection() {
+            if (!connected)
+            {
+                socket_manager.getSocket();
+                if (connected)
+                    button1.Content = "Disconnect";
+            }
+            else
+            {
+                highlightBox.IsChecked = false;
+                socket_manager.closeSocket();
+                connected = false;
+                button1.Content = "Connect to Core";
+            }
         }
 
         private void Highlight_Checked(object sender, RoutedEventArgs e) {
@@ -48,6 +75,11 @@
 
         private void Highlight_Unchecked(object sender, RoutedEventArgs e) {
             highlighting = false;
+        }
+
+        public static itrace_windowControl Instance {
+            get;
+            private set;
         }
     }
 }

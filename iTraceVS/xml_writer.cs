@@ -9,8 +9,7 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
-using System.Diagnostics;
-
+using System.Windows.Threading;
 
 namespace iTraceVS {
 
@@ -18,11 +17,12 @@ namespace iTraceVS {
 
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
-        //private static System.Timers.Timer timer;
+        //public static MicroTimer timer;
+        public static DispatcherTimer timer;
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
-        public static bool dataReady = true;
+        public static bool dataReady = false;
         public static core_data data = new core_data();
 
         public static void xmlStart() {
@@ -48,40 +48,28 @@ namespace iTraceVS {
 
             writer.WriteStartElement("gazes");
 
-            //timer = new System.Timers.Timer() { Interval = 6, AutoReset = true, Enabled = true };
-            //timer.Elapsed += timerTick;
+            //timer = new MicroTimer();
+            //timer.MicroTimerElapsed += new MicroTimer.MicroTimerElapsedEventHandler(timerTick);
+            //// Call micro timer every 5000µs (5ms)
+            //timer.Interval = 6000;
+            //timer.Start();
+            timer = new DispatcherTimer();
+            timer.Tick += timerTick;
+            timer.Interval = TimeSpan.FromSeconds(.1);
+            timer.Start();
         }
 
         static void timerTick(object sender, EventArgs e) {
             if (socket_manager.active && dataReady) {
                 if (data.sessionTime != -1) {
-                    writeResponse(data.sessionTime, data.eyeX, data.eyeY);
-                    //socket_manager.statusBar.setText(data.sessionTime.ToString());
+                    dataReady = false;
+                    getVSData(data.sessionTime, data.eyeX, data.eyeY);
+                    socket_manager.statusBar.setText(data.sessionTime.ToString());
                 }
-                dataReady = false;
             }
         }
 
-        public static void writeResponse(long sessionTime, double x, double y) {
-            dataReady = false;
-            socket_manager.statusBar.setText(Convert.ToString(sessionTime));
-
-            writer.WriteStartElement("response");
-            writer.WriteAttributeString("x", Convert.ToString(x));
-            writer.WriteAttributeString("y", Convert.ToString(y));
-            writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
-            writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
-            //Debug.WriteLine(Convert.ToString(x) + ", " + Convert.ToString(y));
-
-            getVSData(x, y);
-
-            writer.WriteEndElement();
-            writer.Flush();
-
-            dataReady = true;
-        }
-
-        static void getVSData(double x, double y) {            
+        public static void getVSData(long sessionTime, double x, double y) {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             //Variables to print
             String lineHeight = "", fontHeight = "", fileName = "", type = "", path = ""; //lineBaseX = "", lineBaseY = ""; 
@@ -108,12 +96,10 @@ namespace iTraceVS {
                         IWpfTextView wpfTextView = viewHost.TextView;
                         Point localPoint = new Point(Convert.ToInt32(x), Convert.ToInt32(y));
 
-                        //Debug.WriteLine("before try");
-                        //try {
-                        //    localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
-                        //}
-                        //catch {  }
-                        //Debug.WriteLine("pre bufferPos");
+                        try {
+                            localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(x, y));
+                        }
+                        catch { }
 
                         bufferPos = ConvertToPosition(wpfTextView, localPoint);
 
@@ -134,15 +120,26 @@ namespace iTraceVS {
                 }
             }
 
-            writer.WriteAttributeString("object_name", fileName);
-            writer.WriteAttributeString("type", type);
-            writer.WriteAttributeString("path", path);
+            if (writer.WriteState != WriteState.Closed) {
+                writer.WriteStartElement("response");
+                writer.WriteAttributeString("x", Convert.ToString(x));
+                writer.WriteAttributeString("y", Convert.ToString(y));
+                writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
+                writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
+                //
+                writer.WriteAttributeString("object_name", fileName);
+                writer.WriteAttributeString("type", type);
+                writer.WriteAttributeString("path", path);
 
-            writer.WriteAttributeString("line", line.ToString());
-            writer.WriteAttributeString("col", col.ToString());
+                writer.WriteAttributeString("line", line.ToString());
+                writer.WriteAttributeString("col", col.ToString());
 
-            writer.WriteAttributeString("line_height", lineHeight);
-            writer.WriteAttributeString("font_height", fontHeight);
+                writer.WriteAttributeString("line_height", lineHeight);
+                writer.WriteAttributeString("font_height", fontHeight);
+                //
+                writer.WriteEndElement();
+                writer.Flush();
+            }
         }
 
         static SnapshotPoint? ConvertToPosition(ITextView view, Point pos) {
@@ -169,11 +166,14 @@ namespace iTraceVS {
         }
 
         public static void xmlEnd() {
-            writer.WriteEndElement();   //close gazes
-            writer.WriteEndElement();   //close plugin
-            writer.WriteEndDocument();
-            writer.Flush();
-            writer.Close();
+            if (writer != null && writer.WriteState != WriteState.Closed) {
+                writer.WriteEndElement();   //close gazes
+                writer.WriteEndElement();   //close plugin
+                writer.WriteEndDocument();
+                writer.Flush();
+                writer.Close();
+                timer.Stop();
+            }
         }
     }
 }

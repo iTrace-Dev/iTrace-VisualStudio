@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace iTraceVS {
 
@@ -36,7 +37,7 @@ namespace iTraceVS {
         SnapshotSpan? CurrentWord { get; set; }
         SnapshotPoint RequestedPoint { get; set; }
         object updateLock = new object();
-        System.Timers.Timer timer;
+        DispatcherTimer timer;
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
@@ -46,8 +47,12 @@ namespace iTraceVS {
             TextSearchService = textSearchService;
             TextStructureNavigator = textStructureNavigator;
             CurrentWord = null;
-            timer = new System.Timers.Timer() { Interval = 50, Enabled = true };
-            timer.Elapsed += timerTick;
+            timer = new DispatcherTimer();
+            timer.Tick += timerTick;
+            timer.Interval = TimeSpan.FromSeconds(.1);
+            timer.Start();
+            //timer = new System.Timers.Timer() { Interval = 250, Enabled = true };
+            //timer.Elapsed += timerTick;
         }
 
         void timerTick(object sender, EventArgs e) {
