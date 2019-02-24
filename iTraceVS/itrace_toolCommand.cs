@@ -82,11 +82,11 @@ namespace iTraceVS
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
         public void Execute(object sender, EventArgs e) {
-            itrace_commandPackage itraceOptions = this.package as itrace_commandPackage;
-            socket_manager.port = itraceOptions.PortNumber;
             var command = sender as OleMenuCommand;
 
             if (!itrace_windowControl.connected) {
+                itrace_commandPackage itraceOptions = this.package as itrace_commandPackage;
+                socket_manager.port = itraceOptions.PortNumber;
                 socket_manager.getSocket();
                 if (itrace_windowControl.connected) {
                     command.Text = "Disconnect";

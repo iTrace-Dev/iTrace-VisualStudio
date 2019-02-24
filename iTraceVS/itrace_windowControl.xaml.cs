@@ -31,16 +31,8 @@
         public static bool highlighting = false;
 
         public void attemptConnection(object sender, RoutedEventArgs e) {
-            //itrace_toolCommand toolCommand;
-            //try {
-            //    toolCommand = itrace_toolCommand.Instance;
-            //    toolCommand.Execute(sender, e);
-            //}
-            //catch {
-                
-            //}
-
             if (!connected) {
+                socket_manager.port = OptionPageGrid.portNum;
                 socket_manager.getSocket();
                 if (connected)
                     button1.Content = "Disconnect";

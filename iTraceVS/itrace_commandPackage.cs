@@ -18,7 +18,7 @@ namespace iTraceVS {
 
     public class OptionPageGrid : DialogPage
     {
-        private int portNum = 8008;
+        public static int portNum = 8008;
 
         [Category("iTrace Settings")]
         [DisplayName("iTrace Port Number")]
