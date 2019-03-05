@@ -57,7 +57,7 @@
         <Icon guid="guidImages" id="bmpPic1" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Connect to Core</ButtonText>
+          <ButtonText>iTrace: Connect to Core</ButtonText>
         </Strings>
       </Button>
     </Buttons>

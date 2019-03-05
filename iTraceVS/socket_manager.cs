@@ -16,6 +16,9 @@ namespace iTraceVS {
         private static Thread readWorker;
         public static status_bar statusBar;
 
+        public static event NewDataHandler NewData;
+        public delegate void NewDataHandler();
+
         public static void getSocket() {
             try {
                 client = new TcpClient("localhost", port);
@@ -40,15 +43,24 @@ namespace iTraceVS {
                     string rawData = clientIn.ReadLine();
                     xml_writer.dataReady = true;
                     xml_writer.data = new core_data(rawData);
+                    // Check if there are any Subscribers
+                    if (NewData != null) {
+                        // Call the Event
+                        NewData();
+                    }
                 }
             }
         }
+
+        
+
 
         public static void closeSocket() {
             active = false;
             client = null;
             clientIn = null;
             xml_writer.xmlEnd();
+            statusBar.stopUpdating();
         }
     }
 }

@@ -1,24 +1,24 @@
 ﻿using System;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
-namespace iTraceVS
-{
+namespace iTraceVS {
+
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class itrace_toolCommand
-    {
+    internal sealed class itrace_toolCommand {
         /// <summary>
         /// Command ID.
         /// </summary>
         public const int CommandId = 0x0100;
-
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
@@ -85,19 +85,16 @@ namespace iTraceVS
             var command = sender as OleMenuCommand;
 
             if (!itrace_windowControl.connected) {
-                itrace_commandPackage itraceOptions = this.package as itrace_commandPackage;
-                socket_manager.port = itraceOptions.PortNumber;
+                socket_manager.port = OptionPageGrid.portNum;
                 socket_manager.getSocket();
                 if (itrace_windowControl.connected) {
-                    command.Text = "Disconnect";
-                    //sync window button
+                    command.Text = "iTrace: Disconnect";
                 }
             }
             else {
                 socket_manager.closeSocket();
                 itrace_windowControl.connected = false;
-                command.Text = "Connect to Core";
-                //sync window button
+                command.Text = "iTrace: Connect to Core";
             }
         }
     }

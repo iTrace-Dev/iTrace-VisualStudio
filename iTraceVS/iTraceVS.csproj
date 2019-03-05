@@ -77,7 +77,6 @@
     <Compile Include="itrace_commandPackage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MicroTimer.cs" />
     <Compile Include="core_data.cs" />
     <Compile Include="highlight_word_tag.cs" />
     <Compile Include="itrace_window.cs" />

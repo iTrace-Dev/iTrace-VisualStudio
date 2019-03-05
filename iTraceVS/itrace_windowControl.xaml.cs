@@ -1,22 +1,30 @@
-﻿namespace iTraceVS
-{
-    using Microsoft.VisualStudio.Shell;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Globalization;
-    using System.Windows;
-    using System.Windows.Controls;
+﻿using Microsoft.VisualStudio.Shell;
+using System;
+using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
+using System.Diagnostics;
+
+namespace iTraceVS {
 
     /// <summary>
     /// Interaction logic for itrace_windowControl.
     /// </summary>
-    public partial class itrace_windowControl : UserControl
-    {
-
+    public partial class itrace_windowControl : UserControl {
+        DispatcherTimer connectionTextRefreshTimer;
         /// <summary>
         /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
         public itrace_windowControl() {
             this.InitializeComponent();
+
+            connectionTextRefreshTimer = new DispatcherTimer();
+            connectionTextRefreshTimer.Tick += connectionTextRefreshTimer_Tick;
+            connectionTextRefreshTimer.Interval = TimeSpan.FromSeconds(1);
+            connectionTextRefreshTimer.Start();
         }
 
         /// <summary>
@@ -34,26 +42,11 @@
             if (!connected) {
                 socket_manager.port = OptionPageGrid.portNum;
                 socket_manager.getSocket();
-                if (connected)
+                if (connected) {
                     button1.Content = "Disconnect";
+                }
             }
             else {
-                highlightBox.IsChecked = false;
-                socket_manager.closeSocket();
-                connected = false;
-                button1.Content = "Connect to Core";
-            }
-        }
-
-        public void attemptConnection() {
-            if (!connected)
-            {
-                socket_manager.getSocket();
-                if (connected)
-                    button1.Content = "Disconnect";
-            }
-            else
-            {
                 highlightBox.IsChecked = false;
                 socket_manager.closeSocket();
                 connected = false;
@@ -69,9 +62,14 @@
             highlighting = false;
         }
 
-        public static itrace_windowControl Instance {
-            get;
-            private set;
+        public void connectionTextRefreshTimer_Tick(object sender, object e) {
+            //Debug.WriteLine("timer");
+            if (!connected) {
+                button1.Content = "Connect to Core";
+            }
+            else {
+                button1.Content = "Disconnect";
+            }
         }
     }
 }

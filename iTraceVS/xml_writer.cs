@@ -9,7 +9,7 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
-using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace iTraceVS {
 
@@ -17,12 +17,11 @@ namespace iTraceVS {
 
         public static XmlWriter writer;
         public static XmlWriterSettings prefs;
-        //public static MicroTimer timer;
-        public static DispatcherTimer timer;
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
         public static bool dataReady = false;
+        public static bool writerReady = true;
         public static core_data data = new core_data();
 
         public static void xmlStart() {
@@ -45,35 +44,34 @@ namespace iTraceVS {
             writer.WriteEndElement();
             //close environment
             writer.WriteEndElement();
-
             writer.WriteStartElement("gazes");
 
-            //timer = new MicroTimer();
-            //timer.MicroTimerElapsed += new MicroTimer.MicroTimerElapsedEventHandler(timerTick);
-            //// Call micro timer every 5000µs (5ms)
-            //timer.Interval = 6000;
-            //timer.Start();
-            timer = new DispatcherTimer();
-            timer.Tick += timerTick;
-            timer.Interval = TimeSpan.FromSeconds(.1);
-            timer.Start();
+            Subscribe(new socket_manager());
         }
 
-        static void timerTick(object sender, EventArgs e) {
-            if (socket_manager.active && dataReady) {
+        public static void Subscribe(socket_manager socket) {
+            socket_manager.NewData += new socket_manager.NewDataHandler(timerTick);
+        }
+
+        static void timerTick() {
+            if (socket_manager.active ){//&& writerReady) {
                 if (data.sessionTime != -1) {
-                    dataReady = false;
+                    //writerReady = false;
                     getVSData(data.sessionTime, data.eyeX, data.eyeY);
                     socket_manager.statusBar.setText(data.sessionTime.ToString());
+                    //writerReady = true;
                 }
             }
         }
 
+        //Variables to print
+        static String lineHeight = "", fontHeight = "", fileName = "", type = "", path = ""; //lineBaseX = "", lineBaseY = ""; 
+        static int line = -1, col = -1, offsetWindow = -1;
+
         public static void getVSData(long sessionTime, double x, double y) {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            //Variables to print
-            String lineHeight = "", fontHeight = "", fileName = "", type = "", path = ""; //lineBaseX = "", lineBaseY = ""; 
-            int line = -1, col = -1;
+
+            offsetWindow = (offsetWindow + 1) % 15;
 
             foreach (EnvDTE.Window window in dte.Windows) {
                 if (!window.Visible) {
@@ -140,6 +138,9 @@ namespace iTraceVS {
                 writer.WriteEndElement();
                 writer.Flush();
             }
+
+            lineHeight = ""; fontHeight = ""; fileName = ""; type = ""; path = ""; //lineBaseX = "", lineBaseY = ""; 
+            line = -1; col = -1;
         }
 
         static SnapshotPoint? ConvertToPosition(ITextView view, Point pos) {
@@ -172,7 +173,6 @@ namespace iTraceVS {
                 writer.WriteEndDocument();
                 writer.Flush();
                 writer.Close();
-                timer.Stop();
             }
         }
     }
