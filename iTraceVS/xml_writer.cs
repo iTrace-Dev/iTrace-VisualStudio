@@ -24,24 +24,22 @@ namespace iTraceVS {
         public static bool writerReady = true;
         public static core_data data = new core_data();
 
-        public static void xmlStart() {
-            prefs = new XmlWriterSettings() {
+        public static void xmlStart(string sessionID)
+        {
+            prefs = new XmlWriterSettings()
+            {
                 Indent = true
             };
+            System.Diagnostics.Debug.WriteLine(filePath);
             writer = XmlWriter.Create(filePath, prefs);
             writer.WriteStartDocument();
-            writer.WriteStartElement("plugin");
-
+            writer.WriteStartElement("itrace_plugin");
+            writer.WriteAttributeString("session_id", sessionID);
             writer.WriteStartElement("environment");
             //store screen height and width
-            writer.WriteStartElement("screen-size");
-            writer.WriteAttributeString("width", Screen.PrimaryScreen.WorkingArea.Width.ToString());
-            writer.WriteAttributeString("height", Screen.PrimaryScreen.WorkingArea.Height.ToString());
-            writer.WriteEndElement();
-            //store plugin used
-            writer.WriteStartElement("application");
-            writer.WriteAttributeString("type", "MSVS");
-            writer.WriteEndElement();
+            writer.WriteAttributeString("screen_width", Screen.PrimaryScreen.WorkingArea.Width.ToString());
+            writer.WriteAttributeString("screen_height", Screen.PrimaryScreen.WorkingArea.Height.ToString());
+            writer.WriteAttributeString("plugin_type", "MSVS");
             //close environment
             writer.WriteEndElement();
             writer.WriteStartElement("gazes");
@@ -55,10 +53,10 @@ namespace iTraceVS {
 
         static void timerTick() {
             if (socket_manager.active ){//&& writerReady) {
-                if (data.sessionTime != -1) {
+                if (data.eventID != -1) {
                     //writerReady = false;
-                    getVSData(data.sessionTime, data.eyeX, data.eyeY);
-                    socket_manager.statusBar.setText(data.sessionTime.ToString());
+                    getVSData(data.eventID, data.eyeX, data.eyeY);
+                    socket_manager.statusBar.setText(data.eventID.ToString());
                     //writerReady = true;
                 }
             }
@@ -68,7 +66,7 @@ namespace iTraceVS {
         static String lineHeight = "", fontHeight = "", fileName = "", type = "", path = ""; //lineBaseX = "", lineBaseY = ""; 
         static int line = -1, col = -1, offsetWindow = -1;
 
-        public static void getVSData(long sessionTime, double x, double y) {
+        public static void getVSData(long eventID, double x, double y) {
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
             offsetWindow = (offsetWindow + 1) % 15;
@@ -118,23 +116,24 @@ namespace iTraceVS {
                 }
             }
 
-            if (writer.WriteState != WriteState.Closed) {
+            if (writer.WriteState != WriteState.Closed)
+            {
                 writer.WriteStartElement("response");
+                writer.WriteAttributeString("event_id", Convert.ToString(eventID));
+                writer.WriteAttributeString("plugin_time", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
                 writer.WriteAttributeString("x", Convert.ToString(x));
                 writer.WriteAttributeString("y", Convert.ToString(y));
-                writer.WriteAttributeString("timestamp", DateTime.Now.ToString());
-                writer.WriteAttributeString("event_time", Convert.ToString(sessionTime));
-                //
-                writer.WriteAttributeString("object_name", fileName);
-                writer.WriteAttributeString("type", type);
-                writer.WriteAttributeString("path", path);
+                
+                writer.WriteAttributeString("gaze_target", fileName);
+                writer.WriteAttributeString("gaze_target_type", type);
+                writer.WriteAttributeString("source_file_path", path);
 
-                writer.WriteAttributeString("line", line.ToString());
-                writer.WriteAttributeString("col", col.ToString());
+                writer.WriteAttributeString("source_file_line", line.ToString());
+                writer.WriteAttributeString("source_file_col", col.ToString());
 
-                writer.WriteAttributeString("line_height", lineHeight);
-                writer.WriteAttributeString("font_height", fontHeight);
-                //
+                writer.WriteAttributeString("editor_line_height", lineHeight);
+                writer.WriteAttributeString("editor_font_height", fontHeight);
+                
                 writer.WriteEndElement();
                 writer.Flush();
             }
