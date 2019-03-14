@@ -31,19 +31,21 @@ namespace iTraceVS {
                     eyeY = Convert.ToDouble(data_string[3]);
                 }
             }
-            else if (data_string[0] == "session") {                
+            else if (data_string[0] == "session_start") {                
                 eyeX = -1;
                 eyeY = -1;
                 sessionTime = -1;
 
                 string[] tmp = data_string[1].Split('\\');
+                System.Diagnostics.Debug.WriteLine("FILEPATH");
+                System.Diagnostics.Debug.WriteLine(data_string[3] + "/itrace_msvs-" + data_string[2] + ".xml");
                 if (xml_writer.filePath == "default.xml") {
-                    xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
+                    xml_writer.filePath = data_string[3] + "/itrace_msvs-" + data_string[2] + ".xml";
                     xml_writer.xmlStart();
                 } else {
                     Debug.WriteLine("sessionTime else");
                     xml_writer.xmlEnd();
-                    xml_writer.filePath = data_string[1] + "/visualStudio_" + tmp[tmp.Length - 1] + ".xml";
+                    xml_writer.filePath = data_string[3] + "/itrace_msvs-" + data_string[2] + ".xml";
                     xml_writer.xmlStart();
                 }
             }
