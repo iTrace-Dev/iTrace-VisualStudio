@@ -35,13 +35,16 @@ namespace iTraceVS {
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         /// <param name="commandService">Command service to add command to, not null.</param>
+
+        Microsoft.VisualStudio.Shell.OleMenuCommand menuItem;
         private itrace_toolCommand(AsyncPackage package, OleMenuCommandService commandService) {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new OleMenuCommand(this.Execute, menuCommandID);
+            menuItem = new OleMenuCommand(this.Execute, menuCommandID);
             commandService.AddCommand(menuItem);
+            SocketManager.Instance.OnSocketConnect += MenuTextUpdate;
         }
 
         /// <summary>
@@ -84,17 +87,25 @@ namespace iTraceVS {
         public void Execute(object sender, EventArgs e) {
             var command = sender as OleMenuCommand;
 
-            if (!itrace_windowControl.connected) {
-                socket_manager.port = OptionPageGrid.portNum;
-                socket_manager.getSocket();
-                if (itrace_windowControl.connected) {
-                    command.Text = "iTrace: Disconnect";
-                }
+            if (SocketManager.Instance.IsConnected()) {
+                // Try to Connect
+                //socket_manager.port = OptionPageGrid.portNum;
+                //socket_manager.getSocket();                
             }
             else {
-                socket_manager.closeSocket();
-                itrace_windowControl.connected = false;
-                command.Text = "iTrace: Connect to Core";
+                // Disconnect
+            }
+        }
+
+        private void MenuTextUpdate(object sender, long connected)
+        {
+            if (connected == 0)
+            {
+                menuItem.Text = "iTrace: Connect to Core";
+            }
+            else
+            {
+                menuItem.Text = "iTrace: Disconnect";
             }
         }
     }

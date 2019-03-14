@@ -73,11 +73,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CoreDataHandler.cs" />
+    <Compile Include="IDEMapper.cs" />
     <Compile Include="itrace_toolCommand.cs" />
     <Compile Include="itrace_commandPackage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="core_data.cs" />
+    <Compile Include="CoreData.cs" />
     <Compile Include="highlight_word_tag.cs" />
     <Compile Include="itrace_window.cs" />
     <Compile Include="itrace_windowCommand.cs" />
@@ -86,9 +88,9 @@
     </Compile>
     <Compile Include="itrace_windowPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="socket_manager.cs" />
+    <Compile Include="SocketManager.cs" />
     <Compile Include="status_bar.cs" />
-    <Compile Include="xml_writer.cs" />
+    <Compile Include="XMLDataWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

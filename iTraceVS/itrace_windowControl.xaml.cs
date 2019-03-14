@@ -1,12 +1,6 @@
-﻿using Microsoft.VisualStudio.Shell;
-using System;
-using System.ComponentModel.Design;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
-using System.Diagnostics;
 
 namespace iTraceVS {
 
@@ -14,17 +8,17 @@ namespace iTraceVS {
     /// Interaction logic for itrace_windowControl.
     /// </summary>
     public partial class itrace_windowControl : UserControl {
-        DispatcherTimer connectionTextRefreshTimer;
         /// <summary>
         /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
+
+        private IDEMapper mapper;
+
         public itrace_windowControl() {
             this.InitializeComponent();
-
-            connectionTextRefreshTimer = new DispatcherTimer();
-            connectionTextRefreshTimer.Tick += connectionTextRefreshTimer_Tick;
-            connectionTextRefreshTimer.Interval = TimeSpan.FromSeconds(1);
-            connectionTextRefreshTimer.Start();
+            SocketManager.Instance.OnSocketConnect += ButtonConnnectionText;
+            System.Diagnostics.Debug.AutoFlush = true;
+            mapper = new IDEMapper();
         }
 
         /// <summary>
@@ -34,23 +28,15 @@ namespace iTraceVS {
         /// <param name="e">The event args.</param>
         [SuppressMessage("Microsoft.Globalization", "CA1300:SpecifyMessageBoxOptions", Justification = "Sample code")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
-
-        public static bool connected = false;
         public static bool highlighting = false;
 
         public void attemptConnection(object sender, RoutedEventArgs e) {
-            if (!connected) {
-                socket_manager.port = OptionPageGrid.portNum;
-                socket_manager.getSocket();
-                if (connected) {
-                    button1.Content = "Disconnect";
-                }
+            if (!SocketManager.Instance.IsConnected()) {
+                SocketManager.Instance.Connect(OptionPageGrid.portNum);
             }
             else {
                 highlightBox.IsChecked = false;
-                socket_manager.closeSocket();
-                connected = false;
-                button1.Content = "Connect to Core";
+                SocketManager.Instance.Disconnect();
             }
         }
 
@@ -62,9 +48,8 @@ namespace iTraceVS {
             highlighting = false;
         }
 
-        public void connectionTextRefreshTimer_Tick(object sender, object e) {
-            //Debug.WriteLine("timer");
-            if (!connected) {
+        private void ButtonConnnectionText(object sender, long connected) {
+            if (connected == 0) {
                 button1.Content = "Connect to Core";
             }
             else {
