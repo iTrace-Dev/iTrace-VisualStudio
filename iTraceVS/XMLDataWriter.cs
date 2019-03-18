@@ -32,6 +32,25 @@ namespace iTraceVS {
             writer.WriteEndElement();
         }
 
+        private void WriteResponseData()
+        {
+            writer.WriteStartElement("response");
+            writer.WriteAttributeString("event_id", "");
+            writer.WriteAttributeString("plugin_time", "");
+            writer.WriteAttributeString("x", "");
+            writer.WriteAttributeString("y", "");
+            writer.WriteAttributeString("gaze_target", "");
+            writer.WriteAttributeString("gaze_target_type", "");
+            writer.WriteAttributeString("source_file_path", "");
+            writer.WriteAttributeString("source_file_line", "");
+            writer.WriteAttributeString("source_file_col", "");
+            writer.WriteAttributeString("editor_line_height", "");
+            writer.WriteAttributeString("editor_font_height", "");
+            writer.WriteAttributeString("editor_line_base_x", "");
+            writer.WriteAttributeString("editor_line_base_y", "");
+            writer.WriteEndElement();
+        }
+
         public void EndXML()
         {
             writer.WriteEndElement(); // End Gazes
