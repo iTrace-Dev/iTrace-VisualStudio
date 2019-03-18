@@ -16,12 +16,12 @@ namespace iTraceVS
 
         public IDEMapper()
         {
+            dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             CoreDataHandler.Instance.OnCoreDataReceived += ProcessCoreData;
         }
 
         private void ProcessCoreData(object sender, CoreDataReceivedEventArgs e)
         {
-            dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             int line = -1, col = -1, offsetWindow = -1;
             string fileName = "", type = "", path = "", lineHeight= "", fontHeight = "";
             SnapshotPoint? bufferPos;
