@@ -10,13 +10,12 @@ namespace iTraceVS
             new Lazy<SocketManager>(() => new SocketManager());
 
         private long CoreConnected = 0;
+
         private System.Net.Sockets.TcpClient Client;
         private System.IO.StreamReader Reader;
 
         private readonly string CORE_ADDRESS = "127.0.0.1";
         private int CORE_PORT = 8008;
-
-        private XMLDataWriter XMLOutput;
 
         public static SocketManager Instance { get { return Singleton.Value; } }
 
@@ -33,6 +32,7 @@ namespace iTraceVS
                     System.Threading.Interlocked.Exchange(ref CoreConnected, 1);
                     OnSocketConnect(this, CoreConnected);
 
+                    XMLDataWriter.Instance.StartWriter();
                     CoreDataHandler.Instance.StartHandler();
 
                     new System.Threading.Thread(() =>
@@ -43,14 +43,14 @@ namespace iTraceVS
                 }
                 catch (System.Net.Sockets.SocketException e)
                 {
-                    System.Diagnostics.Debug.WriteLine("Core not connected!");
-                    System.Diagnostics.Debug.WriteLine(e);
+                    //System.Diagnostics.Debug.WriteLine("Core not connected!");
+                    //System.Diagnostics.Debug.WriteLine(e);
                     Client = null;
                 }
                 catch (Exception e)
                 {
-                    System.Diagnostics.Debug.WriteLine("Core connection Failed!");
-                    System.Diagnostics.Debug.WriteLine(e);
+                    //System.Diagnostics.Debug.WriteLine("Core connection Failed!");
+                    //System.Diagnostics.Debug.WriteLine(e);
                     Client = null;
                 }
             }
@@ -84,24 +84,12 @@ namespace iTraceVS
 
         private void ReadCoreData()
         {
-            System.Diagnostics.Debug.WriteLine(IsConnected());
+            //System.Diagnostics.Debug.WriteLine(IsConnected());
             while (IsConnected())
             {
                 if (Client.GetStream().DataAvailable)
                 {
-                    String data = Reader.ReadLine();
-                    if (data.StartsWith("session_start"))
-                    {
-                        XMLOutput = new XMLDataWriter(data);
-                    }
-                    else if (data.StartsWith("session_end"))
-                    {
-                        XMLOutput.EndXML();
-                    }
-                    else
-                    {
-                        CoreDataHandler.Instance.EnqueueData(new CoreData(data));
-                    }
+                    CoreDataHandler.Instance.EnqueueData(Reader.ReadLine());
                 }
             }
         }

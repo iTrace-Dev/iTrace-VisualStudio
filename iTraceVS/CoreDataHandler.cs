@@ -1,57 +1,143 @@
 ﻿using System;
+using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Shell.Interop;
+using System.IO;
+using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Text;
+using System.Windows;
 
 namespace iTraceVS
 {
     public sealed class CoreDataHandler
     {
-        public event EventHandler<CoreDataReceivedEventArgs> OnCoreDataReceived;
 
         private static readonly Lazy<CoreDataHandler> Singleton =
         new Lazy<CoreDataHandler>(() => new CoreDataHandler());
 
-        private System.Collections.Concurrent.BlockingCollection<CoreData> CoreDataQueue;
-        
+        private System.Collections.Concurrent.BlockingCollection<string> CoreDataQueue;
+
         public static CoreDataHandler Instance { get { return Singleton.Value; } }
+
+        private static DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
         public void StartHandler()
         {
-            CoreDataQueue = new System.Collections.Concurrent.BlockingCollection<CoreData>(new System.Collections.Concurrent.ConcurrentQueue<CoreData>());
+            CoreDataQueue = new System.Collections.Concurrent.BlockingCollection<string>(new System.Collections.Concurrent.ConcurrentQueue<string>());
             new System.Threading.Thread(() =>
             {
                 DequeueData();
             }).Start();
         }
 
-        public void EnqueueData(CoreData cd)
+        public void EnqueueData(string cd)
         {
             CoreDataQueue.Add(cd);
         }
 
         private void DequeueData()
         {
-            System.Diagnostics.Debug.WriteLine("START DEQUEUE");
-            CoreData cd = CoreDataQueue.Take();
+            string cd = CoreDataQueue.Take();
             while (cd != null)
             {
-                System.Diagnostics.Debug.WriteLine("DEQUEUE");
-                if (OnCoreDataReceived != null)
-                {
-                    System.Diagnostics.Debug.WriteLine("EVENT!");
-                    OnCoreDataReceived(this, new CoreDataReceivedEventArgs(cd));
-                }
+                ProcessCoreData(new XMLJob(cd, DateTime.UtcNow.Ticks));
                 cd = CoreDataQueue.Take();
             }
-            System.Diagnostics.Debug.WriteLine("Queue Thread Done!");
+            System.Diagnostics.Debug.WriteLine("QUEUE EMPTY!");
+            
+            // Kill the Writer thread (HACK)
+            ProcessCoreData(new XMLJob("session_end\n", 0));
         }
-    }
 
-    public class CoreDataReceivedEventArgs : EventArgs
-    {
-        public CoreData ReceivedCoreData { get; private set; }
-
-        public CoreDataReceivedEventArgs(CoreData coreData)
+        // Helper Function for Threads
+        private void ProcessCoreData(XMLJob j)
         {
-            ReceivedCoreData = coreData;
+            if (j.JobType == XMLJob.GAZE_DATA)
+            {
+                //long start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                foreach (EnvDTE.Window window in dte.Windows)
+                {
+                    if (!window.Visible)
+                    {
+                        continue;
+                    }
+                    // only look at text editor windows
+                    if (window.Type == vsWindowType.vsWindowTypeDocument || window.Type == vsWindowType.vsWindowTypeCodeWindow)
+                    {
+                        var openWindowPath = Path.Combine(window.Document.Path, window.Document.Name);
+                        ServiceProvider sp = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)dte);
+                        IVsUIHierarchy uiHierarchy;
+                        uint itemID;
+                        IVsWindowFrame windowFrame;
+                        if (VsShellUtilities.IsDocumentOpen(sp, openWindowPath, Guid.Empty, out uiHierarchy, out itemID, out windowFrame))
+                        {
+                            IVsTextView textView = VsShellUtilities.GetTextView(windowFrame);
+                            object holder;
+                            Guid guidViewHost = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+                            IVsUserData userData = textView as IVsUserData;
+                            userData.GetData(ref guidViewHost, out holder);
+                            IWpfTextViewHost viewHost = (IWpfTextViewHost)holder;
+                            IWpfTextView wpfTextView = viewHost.TextView;
+                            Point localPoint = new Point(Convert.ToInt32(j.EyeX), Convert.ToInt32(j.EyeY));
+
+                            try
+                            {
+                                localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(j.EyeX.GetValueOrDefault(), j.EyeY.GetValueOrDefault()));
+                            }
+                            catch { }
+
+                            SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
+
+                            if (bufferPos != null)
+                            {
+                                j.GazeTarget = window.Document.Name;
+                                j.GazeTargetType = j.GazeTarget.Split('.')[1];
+                                j.SourceFilePath = openWindowPath;
+                                j.SourceFileLine = bufferPos.Value.GetContainingLine().LineNumber + 1;
+                                j.SourceFileCol = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position + 1;
+
+                                var textLine = wpfTextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + wpfTextView.ViewportTop);
+                                //lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
+                                //lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
+                                j.EditorFontHeight = textLine.TextHeight;
+                                j.EditorLineHeight = textLine.Height;
+                                j.PluginTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                            }
+                        }
+                        //System.Diagnostics.Debug.WriteLine("RUNTIME: " + Convert.ToString(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - start));
+                    }
+                }
+            }
+            XMLDataWriter.Instance.EnqueueData(j);
+        }
+
+        private SnapshotPoint? ConvertToPosition(ITextView view, Point pos)
+        {
+            SnapshotPoint? position = null;
+            {
+                // See that we have a view
+                if (view != null && view.TextViewLines != null)
+                {
+                    if ((pos.X >= 0.0) && (pos.X < view.ViewportWidth) && (pos.Y >= 0.0) && (pos.Y < view.ViewportHeight))
+                    {
+                        var line = view.TextViewLines.GetTextViewLineContainingYCoordinate(pos.Y + view.ViewportTop);
+                        if (line != null)
+                        {
+                            double x = pos.X + view.ViewportLeft;
+                            position = line.GetBufferPositionFromXCoordinate(x);
+                            if ((!position.HasValue) && (line.LineBreakLength == 0) && (line.EndIncludingLineBreak == view.TextSnapshot.Length))
+                            {
+                                //For purposes of hover events, pretend the last line in the buffer
+                                //actually is padded by the EndOfLineWidth (even though it is not).
+                                if ((line.Left <= x) && (x < line.TextRight + line.EndOfLineWidth))
+                                    position = line.End;
+                            }
+                        }
+                    }
+                }
+            }
+            return position;
         }
     }
 }

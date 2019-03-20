@@ -1,24 +1,68 @@
-﻿using System.Windows.Forms;
+﻿using System;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace iTraceVS {
 
-    class XMLDataWriter {
+    public sealed class XMLDataWriter {
+
+        private static readonly Lazy<XMLDataWriter> Singleton =
+        new Lazy<XMLDataWriter>(() => new XMLDataWriter());
+
+        private System.Collections.Concurrent.BlockingCollection<XMLJob> XMLDataQueue;
+
+        public static XMLDataWriter Instance { get { return Singleton.Value; } }
 
         public XmlTextWriter writer;
 
-        private readonly int SESSION_ID_POS = 1;
-        private readonly int SESSION_TIMESTAMP_POS = 2;
-        private readonly int DIRECTORY_DATA_POS = 3;
 
-        public XMLDataWriter(string data)
+        public void StartWriter()
         {
-            string[] sessionInfo = data.Split(',');
-            writer = new XmlTextWriter(sessionInfo[DIRECTORY_DATA_POS] + "/itrace_msvs-" + sessionInfo[SESSION_TIMESTAMP_POS] + ".xml", System.Text.Encoding.UTF8);
+            XMLDataQueue = new System.Collections.Concurrent.BlockingCollection<XMLJob>(new System.Collections.Concurrent.ConcurrentQueue<XMLJob>());
+            new System.Threading.Thread(() =>
+            {
+                DequeueData();
+            }).Start();
+        }
+
+        public void EnqueueData(XMLJob job)
+        {
+            XMLDataQueue.Add(job);
+        }
+
+        private void DequeueData()
+        {
+            XMLJob job = XMLDataQueue.Take();
+            while (job.JobID != 0)
+            {
+                WriteJobData(job);
+                job = XMLDataQueue.Take();
+            }
+        }
+
+        private void WriteJobData(XMLJob job)
+        {
+            if (job.JobType == XMLJob.GAZE_DATA)
+            {
+                WriteResponseData(job);
+            }
+            else if (job.JobType == XMLJob.SESSION_START)
+            {
+                StartXML(job);
+            }
+            else
+            {
+                EndXML();
+            }
+        }
+
+        private void StartXML(XMLJob job)
+        {
+            writer = new XmlTextWriter(job.OutputRootDir + "/itrace_msvs-" + job.SessionTimeStamp + ".xml", System.Text.Encoding.UTF8);
             writer.Formatting = Formatting.Indented;
             writer.WriteStartDocument();
             writer.WriteStartElement("itrace_plugin");
-            writer.WriteAttributeString("session_id", sessionInfo[SESSION_ID_POS]);
+            writer.WriteAttributeString("session_id", job.SessionID.ToString());
             WriteEnvironmentData();
             writer.WriteStartElement("gazes");
         }
@@ -32,22 +76,22 @@ namespace iTraceVS {
             writer.WriteEndElement();
         }
 
-        private void WriteResponseData()
+        private void WriteResponseData(XMLJob job)
         {
             writer.WriteStartElement("response");
-            writer.WriteAttributeString("event_id", "");
-            writer.WriteAttributeString("plugin_time", "");
-            writer.WriteAttributeString("x", "");
-            writer.WriteAttributeString("y", "");
-            writer.WriteAttributeString("gaze_target", "");
-            writer.WriteAttributeString("gaze_target_type", "");
-            writer.WriteAttributeString("source_file_path", "");
-            writer.WriteAttributeString("source_file_line", "");
-            writer.WriteAttributeString("source_file_col", "");
-            writer.WriteAttributeString("editor_line_height", "");
-            writer.WriteAttributeString("editor_font_height", "");
-            writer.WriteAttributeString("editor_line_base_x", "");
-            writer.WriteAttributeString("editor_line_base_y", "");
+            writer.WriteAttributeString("event_id", job.EventID.ToString());
+            writer.WriteAttributeString("plugin_time", job.PluginTime.ToString());
+            writer.WriteAttributeString("x", job.EyeX.ToString());
+            writer.WriteAttributeString("y", job.EyeY.ToString());
+            writer.WriteAttributeString("gaze_target", job.GazeTarget != null ? job.GazeTarget : "" );
+            writer.WriteAttributeString("gaze_target_type", job.GazeTargetType != null ? job.GazeTargetType : "" );
+            writer.WriteAttributeString("source_file_path", job.SourceFilePath != null ? job.SourceFilePath : "" );
+            writer.WriteAttributeString("source_file_line", job.SourceFileLine != null ? job.SourceFileLine.Value.ToString() : "" );
+            writer.WriteAttributeString("source_file_col", job.SourceFileCol != null ? job.SourceFileCol.Value.ToString() : "");
+            writer.WriteAttributeString("editor_line_height", job.EditorLineHeight != null ? job.EditorLineHeight.Value.ToString() : "");
+            writer.WriteAttributeString("editor_font_height", job.EditorFontHeight != null ? job.EditorFontHeight.Value.ToString() : "");
+            writer.WriteAttributeString("editor_line_base_x", job.EditorLineBaseX != null ? job.EditorLineBaseX.Value.ToString() : "");
+            writer.WriteAttributeString("editor_line_base_y", job.EditorLineBaseY != null ? job.EditorLineBaseY.Value.ToString() : "");
             writer.WriteEndElement();
         }
 
@@ -55,6 +99,7 @@ namespace iTraceVS {
         {
             writer.WriteEndElement(); // End Gazes
             writer.WriteEndElement(); // End itrace_plugin
+            writer.Close();
         }
     }
 }

@@ -12,13 +12,10 @@ namespace iTraceVS {
         /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
 
-        private IDEMapper mapper;
-
         public itrace_windowControl() {
             this.InitializeComponent();
             SocketManager.Instance.OnSocketConnect += ButtonConnnectionText;
             System.Diagnostics.Debug.AutoFlush = true;
-            mapper = new IDEMapper();
         }
 
         /// <summary>

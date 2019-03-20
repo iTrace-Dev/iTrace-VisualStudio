@@ -74,12 +74,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CoreDataHandler.cs" />
-    <Compile Include="IDEMapper.cs" />
     <Compile Include="itrace_toolCommand.cs" />
     <Compile Include="itrace_commandPackage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="CoreData.cs" />
+    <Compile Include="XMLJob.cs" />
     <Compile Include="highlight_word_tag.cs" />
     <Compile Include="itrace_window.cs" />
     <Compile Include="itrace_windowCommand.cs" />
