@@ -74,6 +74,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CoreDataHandler.cs" />
+    <Compile Include="DocumentEventHandler.cs" />
     <Compile Include="itrace_toolCommand.cs" />
     <Compile Include="itrace_commandPackage.cs">
       <SubType>Component</SubType>

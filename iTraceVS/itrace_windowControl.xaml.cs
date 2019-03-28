@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace iTraceVS {
 
@@ -13,6 +15,11 @@ namespace iTraceVS {
         /// </summary>
 
         public itrace_windowControl() {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            uint cookie;
+            var runningDocumentTable = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(SVsRunningDocumentTable));
+            runningDocumentTable.AdviseRunningDocTableEvents(new DocumentEventHandler(), out cookie);
+
             this.InitializeComponent();
             SocketManager.Instance.OnSocketConnect += ButtonConnnectionText;
             System.Diagnostics.Debug.AutoFlush = true;
