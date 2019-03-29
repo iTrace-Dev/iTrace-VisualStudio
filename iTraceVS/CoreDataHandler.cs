@@ -58,7 +58,6 @@ namespace iTraceVS
         {
             if (j.JobType == XMLJob.GAZE_DATA)
             {
-                
                 Point localPoint = new Point(Convert.ToInt32(j.EyeX), Convert.ToInt32(j.EyeY));
 
                 try
@@ -67,7 +66,17 @@ namespace iTraceVS
                 }
                 catch { }
 
-                SnapshotPoint? bufferPos = ConvertToPosition(ActiveWindow.TextView, localPoint);
+                SnapshotPoint? bufferPos = null;
+
+                try
+                {
+                    bufferPos = ConvertToPosition(ActiveWindow.TextView, localPoint);
+                }
+                catch (InvalidOperationException e)
+                {
+                    return;
+                }
+                catch (Exception e) {}
 
                 if (bufferPos != null)
                 {
