@@ -18,8 +18,6 @@ namespace iTraceVS
 
         public static CoreDataHandler Instance { get { return Singleton.Value; } }
 
-        //private static DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-
         public void StartHandler()
         {
             CoreDataQueue = new System.Collections.Concurrent.BlockingCollection<string>(new System.Collections.Concurrent.ConcurrentQueue<string>());
@@ -117,67 +115,5 @@ namespace iTraceVS
             }
             return position;
         }
-
-        // Helper Function for Threads
-        /*private void ProcessCoreData(XMLJob j)
-        {
-            if (j.JobType == XMLJob.GAZE_DATA)
-            {
-                //long start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                foreach (EnvDTE.Window window in dte.Windows)
-                {
-                    if (!window.Visible)
-                    {
-                        continue;
-                    }
-                    // only look at text editor windows
-                    if (window.Type == vsWindowType.vsWindowTypeDocument || window.Type == vsWindowType.vsWindowTypeCodeWindow)
-                    {
-                        var openWindowPath = Path.Combine(window.Document.Path, window.Document.Name);
-                        ServiceProvider sp = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)dte);
-                        IVsUIHierarchy uiHierarchy;
-                        uint itemID;
-                        IVsWindowFrame windowFrame;
-                        if (VsShellUtilities.IsDocumentOpen(sp, openWindowPath, Guid.Empty, out uiHierarchy, out itemID, out windowFrame))
-                        {
-                            IVsTextView textView = VsShellUtilities.GetTextView(windowFrame);
-                            object holder;
-                            Guid guidViewHost = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
-                            IVsUserData userData = textView as IVsUserData;
-                            userData.GetData(ref guidViewHost, out holder);
-                            IWpfTextViewHost viewHost = (IWpfTextViewHost)holder;
-                            IWpfTextView wpfTextView = viewHost.TextView;
-                            Point localPoint = new Point(Convert.ToInt32(j.EyeX), Convert.ToInt32(j.EyeY));
-
-                            try
-                            {
-                                localPoint = wpfTextView.VisualElement.PointFromScreen(new Point(j.EyeX.GetValueOrDefault(), j.EyeY.GetValueOrDefault()));
-                            }
-                            catch { }
-
-                            SnapshotPoint? bufferPos = ConvertToPosition(wpfTextView, localPoint);
-
-                            if (bufferPos != null)
-                            {
-                                j.GazeTarget = window.Document.Name;
-                                j.GazeTargetType = j.GazeTarget.Split('.')[1];
-                                j.SourceFilePath = openWindowPath;
-                                j.SourceFileLine = bufferPos.Value.GetContainingLine().LineNumber + 1;
-                                j.SourceFileCol = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position + 1;
-
-                                var textLine = wpfTextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + wpfTextView.ViewportTop);
-                                //lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
-                                //lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
-                                j.EditorFontHeight = textLine.TextHeight;
-                                j.EditorLineHeight = textLine.Height;
-                                j.PluginTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                            }
-                        }
-                        //System.Diagnostics.Debug.WriteLine("RUNTIME: " + Convert.ToString(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - start));
-                    }
-                }
-            }
-            XMLDataWriter.Instance.EnqueueData(j);
-        }*/
     }
 }
