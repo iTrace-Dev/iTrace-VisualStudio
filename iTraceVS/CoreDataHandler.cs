@@ -1,10 +1,6 @@
 ﻿using System;
-using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Shell.Interop;
-using System.IO;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
 
@@ -16,11 +12,13 @@ namespace iTraceVS
         private static readonly Lazy<CoreDataHandler> Singleton =
         new Lazy<CoreDataHandler>(() => new CoreDataHandler());
 
+        private volatile SourceWindow ActiveWindow = null;
+
         private System.Collections.Concurrent.BlockingCollection<string> CoreDataQueue;
 
         public static CoreDataHandler Instance { get { return Singleton.Value; } }
 
-        private static DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+        //private static DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
         public void StartHandler()
         {
@@ -34,6 +32,14 @@ namespace iTraceVS
         public void EnqueueData(string cd)
         {
             CoreDataQueue.Add(cd);
+        }
+
+        public void SetActiveSourceWindow(SourceWindow sc)
+        {
+            if (ActiveWindow == null || sc.DocPath != ActiveWindow.DocPath)
+            {
+                ActiveWindow = sc;
+            }
         }
 
         private void DequeueData()
@@ -50,8 +56,70 @@ namespace iTraceVS
             ProcessCoreData(new XMLJob("session_end\n", 0));
         }
 
-        // Helper Function for Threads
         private void ProcessCoreData(XMLJob j)
+        {
+            if (j.JobType == XMLJob.GAZE_DATA)
+            {
+                
+                Point localPoint = new Point(Convert.ToInt32(j.EyeX), Convert.ToInt32(j.EyeY));
+
+                try
+                {
+                    localPoint = ActiveWindow.TextView.VisualElement.PointFromScreen(new Point(j.EyeX.GetValueOrDefault(), j.EyeY.GetValueOrDefault()));
+                }
+                catch { }
+
+                SnapshotPoint? bufferPos = ConvertToPosition(ActiveWindow.TextView, localPoint);
+
+                if (bufferPos != null)
+                {
+                    j.GazeTarget = ActiveWindow.DocName;
+                    j.GazeTargetType = j.GazeTarget.Split('.')[1];
+                    j.SourceFilePath = ActiveWindow.DocPath;
+                    j.SourceFileLine = bufferPos.Value.GetContainingLine().LineNumber + 1;
+                    j.SourceFileCol = bufferPos.Value.Position - bufferPos.Value.GetContainingLine().Start.Position + 1;
+
+                    var textLine = ActiveWindow.TextView.TextViewLines.GetTextViewLineContainingYCoordinate(localPoint.Y + ActiveWindow.TextView.ViewportTop);
+                    //lineBaseY = (textLine.Bottom + wpfTextView.ViewportTop).ToString(); //still needs refining to
+                    //lineBaseX = (textLine.Left + wpfTextView.ViewportLeft).ToString();  //ensure correct values
+                    j.EditorFontHeight = textLine.TextHeight;
+                    j.EditorLineHeight = textLine.Height;
+                    j.PluginTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                }
+            }
+            XMLDataWriter.Instance.EnqueueData(j);
+        }
+
+        private SnapshotPoint? ConvertToPosition(ITextView view, Point pos)
+        {
+            SnapshotPoint? position = null;
+            {
+                // See that we have a view
+                if (view != null && view.TextViewLines != null)
+                {
+                    if ((pos.X >= 0.0) && (pos.X < view.ViewportWidth) && (pos.Y >= 0.0) && (pos.Y < view.ViewportHeight))
+                    {
+                        var line = view.TextViewLines.GetTextViewLineContainingYCoordinate(pos.Y + view.ViewportTop);
+                        if (line != null)
+                        {
+                            double x = pos.X + view.ViewportLeft;
+                            position = line.GetBufferPositionFromXCoordinate(x);
+                            if ((!position.HasValue) && (line.LineBreakLength == 0) && (line.EndIncludingLineBreak == view.TextSnapshot.Length))
+                            {
+                                //For purposes of hover events, pretend the last line in the buffer
+                                //actually is padded by the EndOfLineWidth (even though it is not).
+                                if ((line.Left <= x) && (x < line.TextRight + line.EndOfLineWidth))
+                                    position = line.End;
+                            }
+                        }
+                    }
+                }
+            }
+            return position;
+        }
+
+        // Helper Function for Threads
+        /*private void ProcessCoreData(XMLJob j)
         {
             if (j.JobType == XMLJob.GAZE_DATA)
             {
@@ -110,34 +178,6 @@ namespace iTraceVS
                 }
             }
             XMLDataWriter.Instance.EnqueueData(j);
-        }
-
-        private SnapshotPoint? ConvertToPosition(ITextView view, Point pos)
-        {
-            SnapshotPoint? position = null;
-            {
-                // See that we have a view
-                if (view != null && view.TextViewLines != null)
-                {
-                    if ((pos.X >= 0.0) && (pos.X < view.ViewportWidth) && (pos.Y >= 0.0) && (pos.Y < view.ViewportHeight))
-                    {
-                        var line = view.TextViewLines.GetTextViewLineContainingYCoordinate(pos.Y + view.ViewportTop);
-                        if (line != null)
-                        {
-                            double x = pos.X + view.ViewportLeft;
-                            position = line.GetBufferPositionFromXCoordinate(x);
-                            if ((!position.HasValue) && (line.LineBreakLength == 0) && (line.EndIncludingLineBreak == view.TextSnapshot.Length))
-                            {
-                                //For purposes of hover events, pretend the last line in the buffer
-                                //actually is padded by the EndOfLineWidth (even though it is not).
-                                if ((line.Left <= x) && (x < line.TextRight + line.EndOfLineWidth))
-                                    position = line.End;
-                            }
-                        }
-                    }
-                }
-            }
-            return position;
-        }
+        }*/
     }
 }

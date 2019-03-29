@@ -1,11 +1,29 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
 namespace iTraceVS
 {
-    internal class DocumentEventHandler : IVsRunningDocTableEvents3
+    public partial class DocumentEventHandler : IVsRunningDocTableEvents3
     {
+        // RDT
+        uint rdtCookie;
+        RunningDocumentTable rdt;
+
+        public DocumentEventHandler()
+        {
+            // Advise the RDT of this event sink.
+            IOleServiceProvider sp =
+                Package.GetGlobalService(typeof(IOleServiceProvider)) as IOleServiceProvider;
+            if (sp == null) return;
+
+            rdt = new RunningDocumentTable(new ServiceProvider(sp));
+            if (rdt == null) return;
+
+            rdtCookie = rdt.Advise(this);
+        }
+        
         public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
         {
             System.Diagnostics.Debug.WriteLine("OnAfterFirstDocumentLock");
@@ -33,6 +51,7 @@ namespace iTraceVS
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
             // VISIBLE WINDOW!
+            CoreDataHandler.Instance.SetActiveSourceWindow(new SourceWindow(pFrame, rdt.GetDocumentInfo(docCookie).Moniker));
             System.Diagnostics.Debug.WriteLine("OnBeforeDocumentWindowShow");
             return VSConstants.S_OK;
         }

@@ -16,9 +16,7 @@ namespace iTraceVS {
 
         public itrace_windowControl() {
             ThreadHelper.ThrowIfNotOnUIThread();
-            uint cookie;
-            var runningDocumentTable = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(SVsRunningDocumentTable));
-            runningDocumentTable.AdviseRunningDocTableEvents(new DocumentEventHandler(), out cookie);
+            DocumentEventHandler deh = new DocumentEventHandler();
 
             this.InitializeComponent();
             SocketManager.Instance.OnSocketConnect += ButtonConnnectionText;

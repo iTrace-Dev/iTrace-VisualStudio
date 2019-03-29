@@ -79,6 +79,7 @@
     <Compile Include="itrace_commandPackage.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SourceWindow.cs" />
     <Compile Include="XMLJob.cs" />
     <Compile Include="highlight_word_tag.cs" />
     <Compile Include="itrace_window.cs" />
