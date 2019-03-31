@@ -40,6 +40,11 @@ namespace iTraceVS
             }
         }
 
+        public SnapshotPoint? GetActiveBuffer()
+        {
+            return ActiveWindow.TextBuffer;
+        }
+
         private void DequeueData()
         {
             status.startUpdating();
@@ -74,6 +79,7 @@ namespace iTraceVS
                 try
                 {
                     bufferPos = ConvertToPosition(ActiveWindow.TextView, localPoint);
+                    ActiveWindow.TextBuffer = bufferPos;
                 }
                 catch (InvalidOperationException e)
                 {

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text;
 
 namespace iTraceVS
 {
@@ -11,6 +12,7 @@ namespace iTraceVS
         public String DocPath { get; protected set; }
         public String DocName { get; protected set; }
         public IWpfTextView TextView { get; protected set; }
+        public SnapshotPoint? TextBuffer { get; set; }
 
 
         public SourceWindow(IVsWindowFrame frame, string DocPath)
@@ -18,6 +20,7 @@ namespace iTraceVS
             this.DocPath = DocPath;
             DocName = GetNameFromPath(DocPath);
             TextView = GetTextViewFromFrame(frame);
+            TextBuffer = null;
         }
 
         private IWpfTextView GetTextViewFromFrame(IVsWindowFrame frame)

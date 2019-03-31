@@ -9,9 +9,10 @@ using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System.Windows.Media;
+using System.Windows.Threading;
 
-namespace iTraceVS {
-
+namespace iTraceVS
+{
     internal class HighlightWordTag : TextMarkerTag {
         public HighlightWordTag() : base("MarkerFormatDefinition/HighlightWordFormatDefinition") { }
     }
@@ -36,7 +37,7 @@ namespace iTraceVS {
         SnapshotSpan? CurrentWord { get; set; }
         SnapshotPoint RequestedPoint { get; set; }
         object updateLock = new object();
-        //DispatcherTimer timer;
+        DispatcherTimer timer;
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
@@ -46,22 +47,20 @@ namespace iTraceVS {
             TextSearchService = textSearchService;
             TextStructureNavigator = textStructureNavigator;
             CurrentWord = null;
-            //timer = new DispatcherTimer();
-            //timer.Tick += timerTick;
-            //timer.Interval = TimeSpan.FromSeconds(.1);
-            //timer.Start();
+            timer = new DispatcherTimer();
+            timer.Tick += timerTick;
+            timer.Interval = TimeSpan.FromSeconds(.1);
+            timer.Start();
         }
 
-        //TODO: SWAP WITH EVENT
-        /*void timerTick(object sender, EventArgs e) {
+        void timerTick(object sender, EventArgs e) {
             if (itrace_windowControl.highlighting && SocketManager.Instance.IsConnected()) {
                 UpdateAtGazePosition();
             }
-        }*/
+        }
 
-        //TODO: GOOD CANDIDATE FOR EVENT HANDLER (NEEDS bufferPos from IDE Mapper?)
-        /*void UpdateAtGazePosition() {
-            /*SnapshotPoint? point = XMLDataWriter.bufferPos;
+        void UpdateAtGazePosition() {
+            SnapshotPoint? point = CoreDataHandler.Instance.GetActiveBuffer();
 
             if (!point.HasValue)
                 return;
@@ -76,7 +75,7 @@ namespace iTraceVS {
 
             RequestedPoint = point.Value;
             UpdateWordAdornments();
-        }*/
+        }
 
         void UpdateWordAdornments() {
             SnapshotPoint currentRequest = RequestedPoint;             
