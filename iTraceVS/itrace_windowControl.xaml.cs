@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace iTraceVS {
 

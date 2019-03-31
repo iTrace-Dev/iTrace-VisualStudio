@@ -5,7 +5,7 @@ using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
 namespace iTraceVS
 {
-    public partial class DocumentEventHandler : IVsRunningDocTableEvents3
+    public class DocumentEventHandler : IVsRunningDocTableEvents3
     {
         // RDT
         uint rdtCookie;
@@ -22,6 +22,15 @@ namespace iTraceVS
             if (rdt == null) return;
 
             rdtCookie = rdt.Advise(this);
+        }
+
+        ~ DocumentEventHandler()
+        {
+            try
+            {
+                if (rdtCookie != 0) rdt.Unadvise(rdtCookie);
+            }
+            catch {}
         }
         
         public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
