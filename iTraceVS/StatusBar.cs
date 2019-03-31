@@ -4,20 +4,20 @@ using System;
 using System.Windows.Threading;
 
 namespace iTraceVS {
-    class status_bar {
+    class StatusBar {
         IVsStatusbar statusBar;
-        string text;
+        volatile string eventID;
 
         DispatcherTimer statusBarRefreshTimer;
 
         //Must be created on UI Thread
-        public status_bar() {
-            //ThreadHelper.ThrowIfNotOnUIThread();
+        public StatusBar() {
             statusBar = (IVsStatusbar)itrace_windowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
             Assumes.Present(statusBar);
             statusBarRefreshTimer = new DispatcherTimer();
             statusBarRefreshTimer.Tick += statusBarRefreshTimer_Tick;
             statusBarRefreshTimer.Interval = TimeSpan.FromSeconds(1);
+            eventID = "";
         }
 
         public void startUpdating() {
@@ -29,8 +29,6 @@ namespace iTraceVS {
         }
 
         private void statusBarRefreshTimer_Tick(object sender, object e) {
-            //ThreadHelper.ThrowIfNotOnUIThread();
-
             int frozen;
             statusBar.IsFrozen(out frozen);
 
@@ -38,12 +36,18 @@ namespace iTraceVS {
                 statusBar.FreezeOutput(0);
             }
 
-            statusBar.SetText(text);
+            statusBar.SetText(eventID);
             statusBar.FreezeOutput(1);
         }
 
-        public void setText(string toSet) {
-            text = toSet;
+        public void setEventID(long? id) {
+            if (id.HasValue) {
+                eventID = id.ToString();
+            }
+            else
+            {
+                eventID = "";
+            }
         }
     }
 }

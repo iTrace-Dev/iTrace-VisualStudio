@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
@@ -8,18 +7,19 @@ namespace iTraceVS
 {
     public sealed class CoreDataHandler
     {
-
         private static readonly Lazy<CoreDataHandler> Singleton =
-        new Lazy<CoreDataHandler>(() => new CoreDataHandler());
+        new Lazy<CoreDataHandler>(() => new CoreDataHandler()); 
 
         private volatile SourceWindow ActiveWindow = null;
 
         private System.Collections.Concurrent.BlockingCollection<string> CoreDataQueue;
+        StatusBar status;
 
         public static CoreDataHandler Instance { get { return Singleton.Value; } }
 
         public void StartHandler()
         {
+            status = new StatusBar();
             CoreDataQueue = new System.Collections.Concurrent.BlockingCollection<string>(new System.Collections.Concurrent.ConcurrentQueue<string>());
             new System.Threading.Thread(() =>
             {
@@ -42,6 +42,7 @@ namespace iTraceVS
 
         private void DequeueData()
         {
+            status.startUpdating();
             string cd = CoreDataQueue.Take();
             while (cd != null)
             {
@@ -49,15 +50,17 @@ namespace iTraceVS
                 cd = CoreDataQueue.Take();
             }
             System.Diagnostics.Debug.WriteLine("QUEUE EMPTY!");
-            
+
             // Kill the Writer thread (HACK)
             ProcessCoreData(new XMLJob("session_end\n", 0));
+            status.stopUpdating();            
         }
 
         private void ProcessCoreData(XMLJob j)
         {
             if (j.JobType == XMLJob.GAZE_DATA)
             {
+                status.setEventID(j.EventID);
                 Point localPoint = new Point(Convert.ToInt32(j.EyeX), Convert.ToInt32(j.EyeY));
 
                 try
