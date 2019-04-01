@@ -80,8 +80,11 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SourceWindow.cs" />
+    <Compile Include="TokenHighlight.cs" />
+    <Compile Include="TokenHighlightClassificationDefinition.cs" />
+    <Compile Include="TokenHighlightFormat.cs" />
+    <Compile Include="TokenHighlightProvider.cs" />
     <Compile Include="XMLJob.cs" />
-    <Compile Include="TokenHighlighter.cs" />
     <Compile Include="itrace_window.cs" />
     <Compile Include="itrace_windowCommand.cs" />
     <Compile Include="itrace_windowControl.xaml.cs">
@@ -228,6 +231,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
