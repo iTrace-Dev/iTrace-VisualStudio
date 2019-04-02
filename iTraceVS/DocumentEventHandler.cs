@@ -10,6 +10,7 @@ namespace iTraceVS
         // RDT
         uint rdtCookie;
         RunningDocumentTable rdt;
+        string CurrentDocPath = "";
 
         public DocumentEventHandler()
         {
@@ -56,7 +57,15 @@ namespace iTraceVS
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
             // VISIBLE WINDOW!
-            CoreDataHandler.Instance.SetActiveSourceWindow(new SourceWindow(pFrame, rdt.GetDocumentInfo(docCookie).Moniker));
+            RunningDocumentInfo rdi = rdt.GetDocumentInfo(docCookie);
+
+            if (CurrentDocPath != rdi.Moniker)
+            {
+                System.Diagnostics.Debug.WriteLine(rdi.Moniker);
+                CoreDataHandler.Instance.SetActiveSourceWindow(new SourceWindow(pFrame, rdt.GetDocumentInfo(docCookie).Moniker));
+                CurrentDocPath = rdi.Moniker;
+            }
+                
             return VSConstants.S_OK;
         }
 
