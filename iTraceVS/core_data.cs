@@ -6,13 +6,13 @@ namespace iTraceVS
     {
         public double eyeX;
         public double eyeY;
-        public Int64 sessionTime;
+        public Int64 eventID;
 
         public core_data()
         {
             eyeX = -1;
             eyeY = -1;
-            sessionTime = -1;
+            eventID = -1;
         }
 
         public core_data(string data)
@@ -23,7 +23,7 @@ namespace iTraceVS
 
             if (data_string[0] == "gaze")
             {
-                sessionTime = Convert.ToInt64(data_string[1]);
+                eventID = Convert.ToInt64(data_string[1]);
 
                 if (data_string[2] == "nan" || data_string[3] == "nan")
                 {
@@ -40,18 +40,18 @@ namespace iTraceVS
             {
                 eyeX = -1;
                 eyeY = -1;
-                sessionTime = -1;
+                eventID = -1;
                 System.Diagnostics.Debug.WriteLine(data);
                 if (xml_writer.filePath == "default.xml")
                 {
                     xml_writer.filePath = data_string[3] + "/itrace_msvs_" + data_string[2] + ".xml";
-                    xml_writer.xmlStart();
+                    xml_writer.xmlStart(data_string[1]);
                 }
                 else
                 {
                     xml_writer.xmlEnd();
                     xml_writer.filePath = data_string[3] + "/itrace_msvs_" + data_string[2] + ".xml";
-                    xml_writer.xmlStart();
+                    xml_writer.xmlStart(data_string[1]);
                 }
             }
         }
