@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
@@ -46,7 +46,7 @@ namespace iTraceVS {
             TextSearchService = textSearchService;
             TextStructureNavigator = textStructureNavigator;
             CurrentWord = null;
-            timer = new System.Windows.Forms.Timer() { Interval = 25, Enabled = true };
+            timer = new System.Windows.Forms.Timer() { Interval = 50, Enabled = true };
             timer.Tick += new EventHandler(timerTick);
         }
 
