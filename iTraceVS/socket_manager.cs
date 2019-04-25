@@ -20,11 +20,13 @@ namespace iTraceVS
             try {
                 client = new TcpClient("localhost", port);
                 clientIn = new StreamReader(client.GetStream());
+                xml_writer.filePath = "default.xml";
+                
                 xml_writer.xmlStart("0"); //Hack to get XML data to write...
                 ret = new reticle();
                 active = true;
                 itrace_windowControl.connected = true;
-
+                xml_writer.gazeStart = false;
                 //statusBar = new status_bar();
                 //statusBar.startUpdating();
 

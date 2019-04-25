@@ -20,6 +20,7 @@ namespace iTraceVS
         public static String filePath = "default.xml";
         public static SnapshotPoint? bufferPos;
 
+        public static bool gazeStart = false;
         public static bool dataReady = false;
         public static core_data data = new core_data();
 
@@ -42,14 +43,16 @@ namespace iTraceVS
             writer.WriteEndElement();
 
             writer.WriteStartElement("gazes");
+            gazeStart = true;
 
-            timer = new System.Windows.Forms.Timer() { Interval = 3, Enabled = true };
+            timer = new System.Windows.Forms.Timer() { Interval = 5 };
             timer.Tick += new EventHandler(timerTick);
+            timer.Start();
         }
 
         static void timerTick(object sender, EventArgs e) {
             //core_data data;
-            if (socket_manager.active && dataReady) {
+            if (socket_manager.active && dataReady && gazeStart) {
                 //data = socket_manager.buffer.dequeue();
                 if (data.eventID != -1) {
                     writeResponse(data.eventID, data.eyeX, data.eyeY);
@@ -66,7 +69,7 @@ namespace iTraceVS
             writer.WriteAttributeString("plugin_time", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
             writer.WriteAttributeString("x", Convert.ToString(x));
             writer.WriteAttributeString("y", Convert.ToString(y));
-      
+
             getVSData(x, y);
 
             writer.WriteEndElement();
@@ -167,6 +170,8 @@ namespace iTraceVS
             writer.WriteEndDocument();
             writer.Flush();
             writer.Close();
+            timer.Stop();
+            timer.Dispose();
         }
     }
 }
