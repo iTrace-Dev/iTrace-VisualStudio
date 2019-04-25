@@ -35,8 +35,8 @@ namespace iTraceVS
 
             writer.WriteStartElement("environment");
             //store screen height and width
-            writer.WriteAttributeString("screen_width", Screen.PrimaryScreen.WorkingArea.Width.ToString());
-            writer.WriteAttributeString("screen_height", Screen.PrimaryScreen.WorkingArea.Height.ToString());
+            writer.WriteAttributeString("screen_width", Screen.PrimaryScreen.Bounds.Width.ToString());
+            writer.WriteAttributeString("screen_height", Screen.PrimaryScreen.Bounds.Height.ToString());
             //store plugin used
             writer.WriteAttributeString("plugin_type", "MSVS");
             //close environment
