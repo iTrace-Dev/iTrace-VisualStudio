@@ -19,4 +19,5 @@ To get eye tracking data, this plugin uses the iTrace-Core. You must have it bef
 1. Load up a project to run eye tracking on. 
 1. You should see an iTrace window pane with controls. If you do not, open it up by going to View > Other Windows > itrace_window
 1. When you are ready, click on Connect to Core. **After** that, open up the iTrace Core app, configure it, and then click Start Tracker. This way, the plugin can recieve from the core where to output the data.  
-1. Now eye tracking data is being recorded. To stop it, press Disconnect. To enable a live reticle that shows where you are looking, enable Display Reticle. 
+1. Now eye tracking data is being recorded. To enable a live reticle that shows where you are looking, enable Display Reticle. 
+1. To stop recording data, press Stop Tracker in the iTrace Core app then press Disconnect. The XML file is not complete and closed until you press Disconnect.
