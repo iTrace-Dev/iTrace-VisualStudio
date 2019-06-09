@@ -10,7 +10,19 @@ This extension allows you to know what code files, line / column position, and t
 1. Clone or download this repository and open the .sln file in Visual Studio 2017. It may or may not work in other versions of Visual Studio. 
 1. Once Visual Studio opens, you may be prompted to install a few Visual Studio extension development tools. Accept the installs. 
 1. Once the solution is loaded, press build and run the app. You may want to configure the build to be in release mode for increased optimization.
-1. A new instance of Visual Studio will pop up in which the iTrace Visual Studio extension is available for use. 
+1. A new instance of Visual Studio will pop up in which the iTrace Visual Studio extension is available for use.
+
+## Release Packaging
+
+1. Configure the manifest file to match the appropriate release version
+1. Build the Visual Studio plugin using Release Mode and set the targeted CPU to "Any"
+1. The build directory will generate a iTraceVS.vsix plugin installer
+
+## Plugin Installation
+
+1. Double click the iTraceVS.vsix installer to begin installation
+1. IMPORTANT NOTE: To properly use the plugin after installation, Visual Studio will need to be launched with administrator permissions
+
 
 ## Usage
 
