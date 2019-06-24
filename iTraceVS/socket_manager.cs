@@ -13,7 +13,6 @@ namespace iTraceVS
         static TcpClient client;
         static StreamReader clientIn;
         private static Thread readWorker;
-        public static reticle ret = null;
         //public static status_bar statusBar;
 
         public static void getSocket() {
@@ -23,7 +22,6 @@ namespace iTraceVS
                 xml_writer.filePath = "default.xml";
                 
                 xml_writer.xmlStart("0"); //Hack to get XML data to write...
-                ret = new reticle();
                 active = true;
                 itrace_windowControl.connected = true;
                 xml_writer.gazeStart = false;
@@ -54,10 +52,5 @@ namespace iTraceVS
             clientIn = null;
             xml_writer.xmlEnd();
         }
-        
-        public static void reticleShow(bool show) {
-            ret.toDraw(show);
-        }
-
     }
 }
