@@ -30,6 +30,7 @@
 
         private void attemptConnection(object sender, RoutedEventArgs e) {
             if (!connected) {
+                socket_manager.port = OptionPageGrid.portNum;
                 socket_manager.getSocket();
                 if (connected)
                     button1.Content = "Disconnect";

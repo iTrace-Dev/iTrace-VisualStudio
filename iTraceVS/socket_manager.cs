@@ -7,7 +7,7 @@ namespace iTraceVS
 {
     class socket_manager
     {
-        private static int port = 8008;
+        public static int port = 8008;
         public static bool active = false;
 
         static TcpClient client;

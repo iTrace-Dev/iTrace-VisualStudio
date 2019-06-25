@@ -1,10 +1,23 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 
 namespace iTraceVS
 {
+
+    public class OptionPageGrid : DialogPage {
+        public static int portNum = 8008;
+
+        [Category("iTrace Settings")]
+        [DisplayName("iTrace Port Number")]
+        [Description("Designate which localhost port iTrace should use.")]
+        public int portNumber {
+            get { return portNum; }
+            set { portNum = value; }
+        }
+    }
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.
     /// </summary>
@@ -27,6 +40,7 @@ namespace iTraceVS
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(itrace_window))]
     [Guid(itrace_windowPackage.PackageGuidString)]
+    [ProvideOptionPage(typeof(OptionPageGrid), "iTrace", "iTrace Settings", 0, 0, true)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class itrace_windowPackage : Package
     {
@@ -44,6 +58,13 @@ namespace iTraceVS
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+        }
+
+        public int PortNumber {
+            get {
+                OptionPageGrid page = (OptionPageGrid)GetDialogPage(typeof(OptionPageGrid));
+                return page.portNumber;
+            }
         }
 
         #region Package Members
