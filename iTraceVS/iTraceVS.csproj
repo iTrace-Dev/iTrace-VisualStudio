@@ -96,7 +96,10 @@
     <Content Include="index.html" />
     <VSCTCompile Include="itrace_windowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
     </VSCTCompile>
+    <Content Include="Resources\icon.bmp" />
+    <Content Include="Resources\icon.ico" />
     <Content Include="Resources\itrace_windowCommand.png" />
     <Content Include="Resources\itrace_windowPackage.ico" />
     <Content Include="stylesheet.css" />
