@@ -54,7 +54,7 @@ namespace iTraceVS
             //core_data data;
             if (socket_manager.active && dataReady && gazeStart) {
                 //data = socket_manager.buffer.dequeue();
-                if (data.eventID != -1) {
+                if (data.eventID > 0) {
                     writeResponse(data.eventID, data.eyeX, data.eyeY);
                     //socket_manager.statusBar.setText(data.sessionTime.ToString());
                 }
