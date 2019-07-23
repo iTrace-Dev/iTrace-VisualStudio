@@ -36,19 +36,19 @@
                     button1.Content = "Disconnect";
             }
             else {
-                highlightBox.IsChecked = false;
+                //highlightBox.IsChecked = false;
                 socket_manager.closeSocket();
                 connected = false;
                 button1.Content = "Connect to Core";
             } 
         }
 
-        private void Highlight_Checked(object sender, RoutedEventArgs e) {
-            highlighting = true;
-        }
+        //private void Highlight_Checked(object sender, RoutedEventArgs e) {
+        //    highlighting = true;
+        //}
 
-        private void Highlight_Unchecked(object sender, RoutedEventArgs e) {
-            highlighting = false;
-        }
+        //private void Highlight_Unchecked(object sender, RoutedEventArgs e) {
+        //    highlighting = false;
+        //}
     }
 }

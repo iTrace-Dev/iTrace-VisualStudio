@@ -132,7 +132,7 @@ namespace iTraceVS {
             if (CurrentWord == null)
                 yield break;
 
-            //Hold on to a "snapshot" of the word spans and current word, so that we maintain the same collection throughout  
+            //Hold on to a "snapshot" of the word spans and current word, so that we maintain the same collection throughout
             SnapshotSpan currentWord = CurrentWord.Value;
 
             if (spans.Count == 0)
@@ -154,10 +154,9 @@ namespace iTraceVS {
 
             public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag {
                 //provide highlighting only on the top buffer   
-                if (textView.TextBuffer != buffer)
-                    return null;
-
-                ITextStructureNavigator textStructureNavigator =
+                //if (textView.TextBuffer != buffer)
+                //return null;
+                ITextStructureNavigator textStructureNavigator = 
                     TextStructureNavigatorSelector.GetTextStructureNavigator(buffer);
 
                 return new HighlightWordTagger(textView, buffer, TextSearchService, textStructureNavigator) as ITagger<T>;
