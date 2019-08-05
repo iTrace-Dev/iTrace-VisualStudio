@@ -43,7 +43,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>iTraceVS</RootNamespace>
-    <AssemblyName>iTraceVS</AssemblyName>
+    <AssemblyName>iTraceVS Plugin</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
@@ -80,7 +80,9 @@
     <Compile Include="itrace_windowControl.xaml.cs">
       <DependentUpon>itrace_windowControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="itrace_windowPackage.cs" />
+    <Compile Include="itrace_windowPackage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="socket_manager.cs" />
     <Compile Include="status_bar.cs" />

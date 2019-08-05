@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="iTraceVS.ccbd6a77-f3a9-494c-a410-0bbc37e10dd6" Version="0.1.0" Language="en-US" Publisher="iTrace" />
-    <DisplayName>iTraceVS</DisplayName>
+    <DisplayName>iTraceVS Plugin</DisplayName>
     <Description>iTrace Visual Studio Plugin</Description>
   </Metadata>
   <Installation>

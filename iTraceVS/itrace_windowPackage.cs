@@ -10,9 +10,9 @@ namespace iTraceVS
     public class OptionPageGrid : DialogPage {
         public static int portNum = 8008;
 
-        [Category("iTrace Settings")]
-        [DisplayName("iTrace Port Number")]
-        [Description("Designate which localhost port iTrace should use.")]
+        [Category("iTraceVS Plugin Settings")]
+        [DisplayName("iTraceVS Plugin Port Number")]
+        [Description("Designate which localhost port the iTraceVS Plugin should use.")]
         public int portNumber {
             get { return portNum; }
             set { portNum = value; }
@@ -40,7 +40,7 @@ namespace iTraceVS
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(itrace_window))]
     [Guid(itrace_windowPackage.PackageGuidString)]
-    [ProvideOptionPage(typeof(OptionPageGrid), "iTrace", "iTrace Settings", 0, 0, true)]
+    [ProvideOptionPage(typeof(OptionPageGrid), "iTraceVS Plugin", "iTraceVS Plugin Settings", 0, 0, true)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class itrace_windowPackage : Package
     {

@@ -46,7 +46,7 @@
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
         <Icon guid="guidImages" id="logoIcon" />
         <Strings>
-          <ButtonText>iTrace VS</ButtonText>
+          <ButtonText>iTraceVS Plugin</ButtonText>
         </Strings>
       </Button>
     </Buttons>
