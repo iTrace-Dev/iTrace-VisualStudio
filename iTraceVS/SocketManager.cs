@@ -38,7 +38,7 @@ namespace iTraceVS
 
         static void ReadData() {
             while (active) {
-                if (client.GetStream().DataAvailable == true) {
+                if (client.GetStream().DataAvailable) {
                     string data = clientIn.ReadLine();
                     XmlWriter.dataReady = true;
                     XmlWriter.data = new CoreData(data);

@@ -72,7 +72,6 @@ namespace iTraceVS
             GetVSData(x, y);
 
             writer.WriteEndElement();
-            writer.Flush();
         }
 
         static void GetVSData(double x, double y) {
