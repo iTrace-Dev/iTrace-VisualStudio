@@ -20,21 +20,21 @@ namespace iTraceVS
             statusBar = (IVsStatusbar)WindowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
             Assumes.Present(statusBar);
             statusBarRefreshTimer = new DispatcherTimer();
-            statusBarRefreshTimer.Tick += statusBarRefreshTimer_Tick;
+            statusBarRefreshTimer.Tick += StatusBarRefreshTimerTick;
             statusBarRefreshTimer.Interval = TimeSpan.FromSeconds(1);
         }
 
-        public void startUpdating()
+        public void StartUpdating()
         {
             statusBarRefreshTimer.Start();
         }
 
-        public void stopUpdating()
+        public void StopUpdating()
         {
             statusBarRefreshTimer.Stop();
         }
 
-        private void statusBarRefreshTimer_Tick(object sender, object e)
+        private void StatusBarRefreshTimerTick(object sender, object e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -52,7 +52,7 @@ namespace iTraceVS
             statusBar.FreezeOutput(1);
         }
 
-        public void setText(string toSet)
+        public void SetText(string toSet)
         {
             text = toSet;
         }
