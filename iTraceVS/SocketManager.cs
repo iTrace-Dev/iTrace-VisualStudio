@@ -26,7 +26,7 @@ namespace iTraceVS
                 WindowControl.connected = true;
                 XmlWriter.gazeStart = false;
                 //statusBar = new StatusBar();
-                //statusBar.startUpdating();
+                //statusBar.StartUpdating();
 
                 readWorker = new Thread(ReadData);
                 readWorker.Start();                
@@ -47,6 +47,7 @@ namespace iTraceVS
         }
 
         public static void CloseSocket() {
+            client.Close();
             active = false;
             client = null;
             clientIn = null;

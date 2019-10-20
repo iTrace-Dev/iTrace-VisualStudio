@@ -56,7 +56,7 @@ namespace iTraceVS
                 //data = SocketManager.buffer.dequeue();
                 if (data.eventID > 0) {
                     WriteResponse(data.eventID, data.eyeX, data.eyeY);
-                    //SocketManager.statusBar.setText(data.sessionTime.ToString());
+                    //SocketManager.statusBar.SetText(data.sessionTime.ToString());
                 }
                 dataReady = false;
             }
