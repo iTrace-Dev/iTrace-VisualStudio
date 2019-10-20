@@ -73,20 +73,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="core_data.cs" />
-    <Compile Include="highlight_word_tag.cs" />
-    <Compile Include="itrace_window.cs" />
-    <Compile Include="itrace_windowCommand.cs" />
-    <Compile Include="itrace_windowControl.xaml.cs">
-      <DependentUpon>itrace_windowControl.xaml</DependentUpon>
+    <Compile Include="CoreData.cs" />
+    <Compile Include="HighlightWordTagger.cs" />
+    <Compile Include="Window.cs" />
+    <Compile Include="WindowCommand.cs" />
+    <Compile Include="WindowControl.xaml.cs">
+      <DependentUpon>WindowControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="itrace_windowPackage.cs">
+    <Compile Include="WindowPackage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="socket_manager.cs" />
-    <Compile Include="status_bar.cs" />
-    <Compile Include="xml_writer.cs" />
+    <Compile Include="SocketManager.cs" />
+    <Compile Include="StatusBar.cs" />
+    <Compile Include="XmlWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -96,7 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <VSCTCompile Include="itrace_windowPackage.vsct">
+    <VSCTCompile Include="WindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
@@ -221,7 +221,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="itrace_windowControl.xaml">
+    <Page Include="WindowControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

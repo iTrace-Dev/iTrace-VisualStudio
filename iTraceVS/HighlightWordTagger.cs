@@ -47,17 +47,17 @@ namespace iTraceVS {
             TextStructureNavigator = textStructureNavigator;
             CurrentWord = null;
             timer = new System.Windows.Forms.Timer() { Interval = 50, Enabled = true };
-            timer.Tick += new EventHandler(timerTick);
+            timer.Tick += new EventHandler(TimerTick);
         }
 
-        void timerTick(object sender, EventArgs e) {
-            if (itrace_windowControl.highlighting && itrace_windowControl.connected) {
+        void TimerTick(object sender, EventArgs e) {
+            if (WindowControl.highlighting && WindowControl.connected) {
                 UpdateAtGazePosition();
             }
         }
 
         void UpdateAtGazePosition() {
-            SnapshotPoint? point = xml_writer.bufferPos;
+            SnapshotPoint? point = XmlWriter.bufferPos;
 
             if (!point.HasValue)
                 return;

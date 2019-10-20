@@ -9,7 +9,7 @@ namespace iTraceVS
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class itrace_windowCommand
+    internal sealed class WindowCommand
     {
         /// <summary>
         /// Command ID.
@@ -27,11 +27,11 @@ namespace iTraceVS
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="itrace_windowCommand"/> class.
+        /// Initializes a new instance of the <see cref="WindowCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private itrace_windowCommand(Package package)
+        private WindowCommand(Package package)
         {
             if (package == null)
             {
@@ -52,7 +52,7 @@ namespace iTraceVS
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static itrace_windowCommand Instance
+        public static WindowCommand Instance
         {
             get;
             private set;
@@ -75,7 +75,7 @@ namespace iTraceVS
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new itrace_windowCommand(package);
+            Instance = new WindowCommand(package);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace iTraceVS
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
-            ToolWindowPane window = this.package.FindToolWindow(typeof(itrace_window), 0, true);
+            ToolWindowPane window = this.package.FindToolWindow(typeof(Window), 0, true);
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create tool window");

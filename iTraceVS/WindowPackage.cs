@@ -38,11 +38,11 @@ namespace iTraceVS
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(itrace_window))]
-    [Guid(itrace_windowPackage.PackageGuidString)]
+    [ProvideToolWindow(typeof(Window))]
+    [Guid(WindowPackage.PackageGuidString)]
     [ProvideOptionPage(typeof(OptionPageGrid), "iTrace VS Plugin", "iTrace VS Plugin Settings", 0, 0, true)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class itrace_windowPackage : Package
+    public sealed class WindowPackage : Package
     {
         /// <summary>
         /// itrace_windowPackage GUID string.
@@ -50,9 +50,9 @@ namespace iTraceVS
         public const string PackageGuidString = "458c6f56-b9d4-49db-9215-9effeafddf33";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="itrace_window"/> class.
+        /// Initializes a new instance of the <see cref="Window"/> class.
         /// </summary>
-        public itrace_windowPackage()
+        public WindowPackage()
         {
             // Inside this method you can place any initialization code that does not require
             // any Visual Studio service because at this point the package object is created but
@@ -75,7 +75,7 @@ namespace iTraceVS
         /// </summary>
         protected override void Initialize()
         {
-            itrace_windowCommand.Initialize(this);
+            WindowCommand.Initialize(this);
             base.Initialize();
         }
 

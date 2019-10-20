@@ -6,7 +6,7 @@ using System.Windows.Threading;
 
 namespace iTraceVS
 {
-    class status_bar
+    class StatusBar
     {
         IVsStatusbar statusBar;
         string text;
@@ -14,10 +14,10 @@ namespace iTraceVS
         DispatcherTimer statusBarRefreshTimer;
 
         //Must be created on UI Thread
-        public status_bar()
+        public StatusBar()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            statusBar = (IVsStatusbar)itrace_windowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
+            statusBar = (IVsStatusbar)WindowCommand.Instance.ServiceProvider.GetService(typeof(SVsStatusbar));
             Assumes.Present(statusBar);
             statusBarRefreshTimer = new DispatcherTimer();
             statusBarRefreshTimer.Tick += statusBarRefreshTimer_Tick;

@@ -5,15 +5,15 @@
     using System.Windows.Controls;
 
     /// <summary>
-    /// Interaction logic for iTraceWindowControl.
+    /// Interaction logic for itrace_windowControl.
     /// </summary>
-    public partial class iTraceWindowControl : UserControl
+    public partial class WindowControl : UserControl
     {
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="iTraceWindowControl"/> class.
+        /// Initializes a new instance of the <see cref="itrace_windowControl"/> class.
         /// </summary>
-        public iTraceWindowControl() {
+        public WindowControl() {
             this.InitializeComponent();
         }
 
@@ -28,7 +28,7 @@
         public static bool connected = false;
         public static bool highlighting = false;
 
-        private void attemptConnection(object sender, RoutedEventArgs e) {
+        private void AttemptConnection(object sender, RoutedEventArgs e) {
             if (!connected) {
                 SocketManager.port = OptionPageGrid.portNum;
                 SocketManager.GetSocket();

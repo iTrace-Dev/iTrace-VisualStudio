@@ -12,9 +12,9 @@ using System.Windows;
 
 namespace iTraceVS 
 {
-    class xml_writer
+    class XmlWriter
     {
-        public static XmlWriter writer;
+        public static System.Xml.XmlWriter writer;
         public static XmlWriterSettings prefs;
         private static System.Windows.Forms.Timer timer;
         public static String filePath = "default.xml";
@@ -22,13 +22,13 @@ namespace iTraceVS
 
         public static bool gazeStart = false;
         public static bool dataReady = false;
-        public static core_data data = new core_data();
+        public static CoreData data = new CoreData();
 
-        public static void xmlStart(string sessionId) {
+        public static void XmlStart(string sessionId) {
             prefs = new XmlWriterSettings() {
                 Indent = true
             };
-            writer = XmlWriter.Create(filePath, prefs);
+            writer = System.Xml.XmlWriter.Create(filePath, prefs);
             writer.WriteStartDocument();
             writer.WriteStartElement("itrace_plugin");
             writer.WriteAttributeString("session_id", sessionId);
@@ -46,36 +46,36 @@ namespace iTraceVS
             gazeStart = true;
 
             timer = new System.Windows.Forms.Timer() { Interval = 5 };
-            timer.Tick += new EventHandler(timerTick);
+            timer.Tick += new EventHandler(TimerTick);
             timer.Start();
         }
 
-        static void timerTick(object sender, EventArgs e) {
-            //core_data data;
-            if (socket_manager.active && dataReady && gazeStart) {
-                //data = socket_manager.buffer.dequeue();
+        static void TimerTick(object sender, EventArgs e) {
+            //CoreData data;
+            if (SocketManager.active && dataReady && gazeStart) {
+                //data = SocketManager.buffer.dequeue();
                 if (data.eventID > 0) {
-                    writeResponse(data.eventID, data.eyeX, data.eyeY);
-                    //socket_manager.statusBar.setText(data.sessionTime.ToString());
+                    WriteResponse(data.eventID, data.eyeX, data.eyeY);
+                    //SocketManager.statusBar.setText(data.sessionTime.ToString());
                 }
                 dataReady = false;
             }
         }
 
-        public static void writeResponse(Int64 eventId, double x, double y) {
+        public static void WriteResponse(Int64 eventId, double x, double y) {
             writer.WriteStartElement("response");
             writer.WriteAttributeString("event_id", Convert.ToString(eventId));
             writer.WriteAttributeString("plugin_time", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
             writer.WriteAttributeString("x", Convert.ToString(x));
             writer.WriteAttributeString("y", Convert.ToString(y));
 
-            getVSData(x, y);
+            GetVSData(x, y);
 
             writer.WriteEndElement();
             writer.Flush();
         }
 
-        static void getVSData(double x, double y) {
+        static void GetVSData(double x, double y) {
             ThreadHelper.ThrowIfNotOnUIThread();
             DTE dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             //Var to print
@@ -154,7 +154,7 @@ namespace iTraceVS
                                 //For purposes of hover events, pretend the last line in the buffer
                                 //actually is padded by the EndOfLineWidth (even though it is not).
                                 if ((line.Left <= x) && (x < line.TextRight + line.EndOfLineWidth))
-                                    position = line.End;                                
+                                    position = line.End;
                             }
                         }
                     }
@@ -163,7 +163,7 @@ namespace iTraceVS
             return position;
         }
 
-        public static void xmlEnd() {
+        public static void XmlEnd() {
             writer.WriteEndElement();   //close gazes
             writer.WriteEndElement();   //close plugin
             writer.WriteEndDocument();

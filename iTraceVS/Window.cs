@@ -16,19 +16,19 @@
     /// </para>
     /// </remarks>
     [Guid("1d8401b1-a9d8-480d-8100-e03f65a32d3a")]
-    public class itrace_window : ToolWindowPane
+    public class Window : ToolWindowPane
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="itrace_window"/> class.
+        /// Initializes a new instance of the <see cref="Window"/> class.
         /// </summary>
-        public itrace_window() : base(null)
+        public Window() : base(null)
         {
             this.Caption = "iTrace VS Plugin";
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
             // the object returned by the Content property.
-            this.Content = new itrace_windowControl();
+            this.Content = new WindowControl();
         }
     }
 }
