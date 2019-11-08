@@ -14,7 +14,7 @@ namespace iTraceVS
         static StreamReader clientIn;
         private static Thread readWorker;
         //public static StatusBar statusBar;
-
+        
         public static void GetSocket() {
             try {
                 client = new TcpClient("localhost", port);
@@ -47,7 +47,6 @@ namespace iTraceVS
         }
 
         public static void CloseSocket() {
-            client.Close();
             active = false;
             client = null;
             clientIn = null;
