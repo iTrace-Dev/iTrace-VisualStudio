@@ -30,5 +30,13 @@
             // the object returned by the Content property.
             this.Content = new itrace_windowControl();
         }
+
+        protected override void OnClose()
+        {
+            if(xml_writer.runCheck() == true)
+            {
+                xml_writer.xmlEnd();
+            }
+        }
     }
 }

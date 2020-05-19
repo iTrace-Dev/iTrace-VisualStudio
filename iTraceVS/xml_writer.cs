@@ -172,5 +172,10 @@ namespace iTraceVS
             timer.Stop();
             timer.Dispose();
         }
+
+        public static bool runCheck()
+        {
+            return timer.Enabled;
+        }
     }
 }
