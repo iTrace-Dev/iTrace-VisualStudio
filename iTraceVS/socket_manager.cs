@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using System.Windows;
 
 namespace iTraceVS
 {
@@ -17,7 +18,7 @@ namespace iTraceVS
 
         public static void getSocket() {
             try {
-                client = new TcpClient("localhost", port);
+                client = new TcpClient("127.0.0.1", port);
                 clientIn = new StreamReader(client.GetStream());
                 xml_writer.filePath = "default.xml";
                 
@@ -32,7 +33,8 @@ namespace iTraceVS
                 readWorker.Start();                
             }
             catch (Exception e) {
-                Console.WriteLine(e.ToString());               
+                Console.WriteLine(e.ToString());
+                MessageBox.Show("Unable to connect to iTrace Core. \nConfirm iTrace Core is running and try again.", "iTrace Visual Studio");
             }
         }
 

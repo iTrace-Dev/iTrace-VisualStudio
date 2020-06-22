@@ -9,6 +9,7 @@ using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
+using Microsoft.VisualStudio.Editor;
 
 namespace iTraceVS 
 {
@@ -98,7 +99,7 @@ namespace iTraceVS
                     if (VsShellUtilities.IsDocumentOpen(sp, openWindowPath, Guid.Empty, out uiHierarchy, out itemID, out windowFrame)) {
                         IVsTextView textView = VsShellUtilities.GetTextView(windowFrame);
                         object holder;
-                        Guid guidViewHost = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+                        Guid guidViewHost = DefGuidList.guidIWpfTextViewHost;
                         IVsUserData userData = textView as IVsUserData;
                         userData.GetData(ref guidViewHost, out holder);
                         IWpfTextViewHost viewHost = (IWpfTextViewHost)holder;
