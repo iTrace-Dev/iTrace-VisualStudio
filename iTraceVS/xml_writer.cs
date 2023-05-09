@@ -14,12 +14,14 @@ using System.Windows.Forms;
 using System.Xml;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Editor;
+//using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Shell.Interop;
+//using Microsoft.VisualStudio.Editor.Def
 using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using System.Windows;
+using Microsoft.VisualStudio.Text.Editor;
 
 namespace iTraceVS 
 {
